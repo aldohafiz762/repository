@@ -6,48 +6,39 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class GetStatusDash {
   late int? status;
-  // late String? id;
+  late String? id;
 
-  GetStatusDash({this.status});
+  GetStatusDash({this.status, this.id});
 
-  static Future readStat() async {
+  static Future<List<DashStatusModel>> fetchStatusData() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url =
         Uri.parse("https://bismillah-lulus-ta.vercel.app/api/getStatusDash");
 
     var hasilResponseGet = await http.get(url, headers: {
-      'Content-Type': 'application/json; charset=utf-8',
+      'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
     });
-    Iterable it =
-        (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"];
-    List<DashStatusModel> statusList =
-        it.map((e) => DashStatusModel.fromJSON(e)).toList();
-    return statusList;
-    //   if (hasilResponseGet.statusCode == 200) {
-    //     final parsed = json.decode(hasilResponseGet.body) as Map<String, dynamic>;
-    //     final data = parsed["data"];
-
-    //     if (data is List<dynamic>) {
-    //       List<DashStatusModel> statusList = data
-    //           .map((e) => DashStatusModel.fromJSON(e as Map<String, dynamic>))
-    //           .toList();
-    //       return statusList;
-    //     } else if (data is Map<String, dynamic>) {
-    //       // Jika data adalah Map, perlakukan dengan benar atau lempar pengecualian
-    //       return [DashStatusModel.fromJSON(data)];
-    //     } else {
-    //       throw Exception('Expected a list or map for "data"');
-    //     }
-    //   } else {
-    //     throw Exception('Failed to load status');
-    //   }
-    //   // Iterable it =
-    //   //     (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"];
-    //   // List<StatusModel> statusList =
-    //   //     it.map((e) => StatusModel.fromJSON(e)).toList();
-    //   // return statusList;
+    // var statusList = DashStatusModel.fromJSON(
+    //     (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"]);
+    // var it =
+    //     (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"];
+    // List<DashStatusModel> statusList =
+    //     it.map((e) => DashStatusModel.fromJSON(e)).toList();
+    // return statusList;
+    if (hasilResponseGet.statusCode == 200) {
+      List<DashStatusModel> data = jsonDecode(hasilResponseGet.body)['data'];
+      return data;
+      // .map((item) => DashStatusModel.fromJSON(item)).toList();
+    } else {
+      throw Exception('Failed to load status data');
+    }
+    // Iterable it =
+    //     (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"];
+    // List<StatusModel> statusList =
+    //     it.map((e) => StatusModel.fromJSON(e)).toList();
+    // return statusList;
   }
 }
 

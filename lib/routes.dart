@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:project_tugas_akhir_copy/2_dashboard.dart';
 import 'package:project_tugas_akhir_copy/animRoute.dart';
 import 'package:project_tugas_akhir_copy/constant.dart';
 import 'package:project_tugas_akhir_copy/getStarted.dart';
 import 'package:project_tugas_akhir_copy/splashscreen.dart';
 import 'package:project_tugas_akhir_copy/login.dart';
 import 'package:project_tugas_akhir_copy/transisi_dari_login.dart';
-import 'package:project_tugas_akhir_copy/dashboard.dart';
+// import 'package:project_tugas_akhir_copy/2_dashboard.dart';
 import 'package:project_tugas_akhir_copy/mesin1/m1home.dart';
 import 'package:project_tugas_akhir_copy/mesin1/m1inputparam.dart';
 import 'package:project_tugas_akhir_copy/mesin1/m1cost.dart';
@@ -38,7 +39,7 @@ class Routes {
       case mydashboard:
         var b = settings.arguments as String;
         // return MaterialPageRoute(builder:(context) =>  dashboard(b),);
-        return BouncyPageRoute(page: Dashboard(b));
+        return BouncyPageRoute(page: StatusScreen(b));
       case mym1home:
         var c = settings.arguments as String;
         // return MaterialPageRoute(builder:(context) => m1home(c),);

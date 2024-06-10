@@ -1,14 +1,32 @@
+import 'dart:async';
+// import 'package:flutter/material.dart';
+
 class DashStatusModel {
   late int? status;
-  // late String? id;
-  DashStatusModel({this.status});
+  late String? id;
+  DashStatusModel({this.status, this.id});
 
   factory DashStatusModel.fromJSON(Map<String, dynamic> json) {
     return DashStatusModel(
-        // id: json['_id'],
+        id: json['_id'],
         // machine_id: json["machine_id"],
         // status: json["status"],
         status: json['status']);
+  }
+}
+
+class DataProvider {
+  final StreamController<List<DashStatusModel>> _controller =
+      StreamController.broadcast();
+
+  Stream<List<DashStatusModel>> get stream => _controller.stream;
+
+  void addData(List<DashStatusModel> data) {
+    _controller.sink.add(data);
+  }
+
+  void dispose() {
+    _controller.close();
   }
 }
 
