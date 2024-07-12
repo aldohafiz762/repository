@@ -1,7 +1,11 @@
 const String mydashboard = '/dashboard';
+const String myhome = 'home';
 const String mysplash = '/splash';
 const String mylogin = '/login';
 const String mym1home = '/m1home';
+const String m1lifetime = '/m1lifetime';
+const String myalarm = '/myalarm';
+const String akunscreen = '/akunscreen';
 // const String mym2home = '/m2home';
 // const String mym3home = '/m3home';
 // const String mym4home = '/m4home';
@@ -17,6 +21,17 @@ const String mym1pdf = '/m1pdf';
 const String mym1pressure = '/m1pressure';
 const String mym1monitoring = '/m1monitoring';
 const String mym1stock = '/m1stock';
+
+const String voltages = '/voltages';
+const String currents = '/currents';
+const String powers = '/powers';
+const String energies = '/energies';
+const String frequencies = '/frequencies';
+const String pfs = '/pfs';
+const String temperatures = '/temperatures';
+const String pressures = '/pressures';
+const String strains = '/strains';
+const String vibrations = '/vibrations';
 
 // const String mym2alarm = '/m2alarm';
 // const String mym2cost = '/m2cost';

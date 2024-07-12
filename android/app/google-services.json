@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "286160847807",
+    "project_id": "projectta-bbceb",
+    "storage_bucket": "projectta-bbceb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:286160847807:android:c9e45c5b8de847e325570a",
+        "android_client_info": {
+          "package_name": "com.example.project_tugas_akhir_copy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5aqdccC8-WXd1KNMks_3ggsCL-BOHxL8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

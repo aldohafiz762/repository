@@ -27,7 +27,7 @@ class InputParameter {
       int state) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://bismillah-lulus-ta.vercel.app/api/inputParam");
+    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/inputParam");
 
     var hasilResponsePost = await http.post(url,
         headers: <String, String>{
@@ -132,8 +132,7 @@ class ResetParam {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     shared.setInt('stateParamM1', state);
-    Uri urlput =
-        Uri.parse("https://bismillah-lulus-ta.vercel.app/api/resetParamM1");
+    Uri urlput = Uri.parse("https://tugasakhirmangjody.my.id/api/resetParamM1");
 
     var hasilResponsePut = await http.put(
       urlput,
@@ -274,8 +273,7 @@ class ResetParam {
 
 //READ LATEST INPUT PARAMETER M1
 class ReadLatestParamM1 {
-  Uri url =
-      Uri.parse("https://bismillah-lulus-ta.vercel.app/api/latestParamM1");
+  Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/latestParamM1");
   Future getParamM1() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");

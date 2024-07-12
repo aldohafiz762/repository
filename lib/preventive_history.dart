@@ -3,14 +3,16 @@ import 'dart:async';
 import 'package:awesome_dialog/awesome_dialog.dart';
 // import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/material.dart';
-import 'package:project_tugas_akhir_copy/services/preventive_service.dart';
-import 'package:project_tugas_akhir_copy/additional/report_maintenance.dart';
+import 'package:project_tugas_akhir_copy/main.dart';
+import 'package:project_tugas_akhir_copy/newdata/dashboard_app_theme.dart';
+// import 'package:project_tugas_akhir_copy/services/preventive_service.dart';
+// import 'package:project_tugas_akhir_copy/additional/report_maintenance.dart';
 import 'package:project_tugas_akhir_copy/back_button_pop.dart';
-import 'package:project_tugas_akhir_copy/drawer.dart';
-import 'package:project_tugas_akhir_copy/models/preventive_model.dart';
+// import 'package:project_tugas_akhir_copy/drawer.dart';
+// import 'package:project_tugas_akhir_copy/models/preventive_model.dart';
 import 'package:project_tugas_akhir_copy/routes.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
+// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+// import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -22,6 +24,7 @@ class PreventiveHistory extends StatefulWidget {
 }
 
 class _PreventiveHistoryState extends State<PreventiveHistory> {
+  late List<DataRow> rows; // State untuk menyimpan baris tabel
   String? name, otoritas;
   Future<void> getValidUser() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
@@ -33,32 +36,47 @@ class _PreventiveHistoryState extends State<PreventiveHistory> {
     });
   }
 
-  int m = 1;
-  bool sort = true;
+  final StreamController<List<DataRow>> streamPrev =
+      StreamController<List<DataRow>>.broadcast();
+  // int m = 1;
+  bool sort = false;
   late Timer timer;
-  StreamController streamPrev = StreamController.broadcast();
-  List<PreventiveMessageModel> ListPrev = [];
-  GetPreventive prevList = GetPreventive();
-  Future<void> prevData() async {
-    ListPrev = await prevList.getPrev(m);
-    streamPrev.add(ListPrev);
-  }
 
   @override
   void initState() {
     getValidUser();
-    prevData();
-    timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      prevData();
-    });
+    rows = [];
+    // prevData();
     super.initState();
   }
 
   @override
   void dispose() {
-    if (timer.isActive) timer.cancel();
+    streamPrev.close();
     super.dispose();
   }
+
+  // Future<void> prevData() async {
+  //   // Simulasi data dari API atau sumber data lainnya
+  //   List<DataRow> newRows = [
+  //     DataRow(cells: [
+  //       DataCell(Text('1')),
+  //       DataCell(Text('Komponen 1')),
+  //       DataCell(Text('Nama Pekerjaan 1')),
+  //       DataCell(Text('Checklist 1')),
+  //     ]),
+  //     DataRow(cells: [
+  //       DataCell(Text('2')),
+  //       DataCell(Text('Komponen 2')),
+  //       DataCell(Text('Nama Pekerjaan 2')),
+  //       DataCell(Text('Checklist 2')),
+  //     ]),
+  //   ];
+  //   setState(() {
+  //     rows = newRows;
+  //   });
+  //   streamPrev.add(rows);
+  // }
 
   final timeZone = tz.getLocation('Asia/Jakarta');
   @override
@@ -82,42 +100,13 @@ class _PreventiveHistoryState extends State<PreventiveHistory> {
           toolbarHeight: blockVertical * 6,
           shadowColor: Colors.transparent,
           title: Text(
-            "History Maintenance",
+            "Form Preventive Maintenance",
             style: TextStyle(fontSize: blockVertical * 2.5),
           ),
           centerTitle: true,
           backgroundColor: Color.fromARGB(255, 2, 66, 87).withOpacity(0.5),
           leading: backbutton(context),
-          actions: [
-            IconButton(
-                onPressed: () {
-                  if (otoritas == "User-Management" || otoritas == "Admin") {
-                    if (m == 1) {
-                      ReportMaintenance(mid: 1).Trouble();
-                    } else if (m == 2) {
-                      ReportMaintenance(mid: 2).Trouble();
-                    } else if (m == 3) {
-                      ReportMaintenance(mid: 3).Trouble();
-                    } else {
-                      ReportMaintenance(mid: 4).Trouble();
-                    }
-                  } else {
-                    AwesomeDialog(
-                            context: context,
-                            dialogType: DialogType.error,
-                            title: "You have no access to perform this action",
-                            useRootNavigator: true,
-                            autoHide: Duration(milliseconds: 1500))
-                        .show();
-                  }
-                },
-                icon: Icon(
-                  Icons.picture_as_pdf,
-                  color: Colors.white,
-                ))
-          ],
         ),
-        drawer: TheDrawer(),
         body: Container(
           padding: EdgeInsets.only(top: blockVertical * 12),
           height: double.infinity,
@@ -159,219 +148,93 @@ class _PreventiveHistoryState extends State<PreventiveHistory> {
                         scrollDirection: Axis.vertical,
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
-                          child: StreamBuilder(
-                              stream: streamPrev.stream,
-                              builder: (context, snapshot) {
-                                return DataTable(
-                                  sortColumnIndex: 0,
-                                  sortAscending: sort,
-                                  headingRowColor:
-                                      MaterialStateProperty.resolveWith<Color?>(
-                                          (Set<MaterialState> state) {
+                          child: StreamBuilder<List<DataRow>>(
+                            stream: streamPrev.stream,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                  child: Text('Error: ${snapshot.error}'),
+                                );
+                              } else if (!snapshot.hasData ||
+                                  snapshot.data!.isEmpty) {
+                                return Center(
+                                  child: Text('No data available'),
+                                );
+                              }
+
+                              return DataTable(
+                                sortColumnIndex: 0,
+                                sortAscending: sort,
+                                headingRowColor:
+                                    MaterialStateProperty.resolveWith<Color?>(
+                                  (Set<MaterialState> state) {
                                     return Theme.of(context)
                                         .colorScheme
                                         .primary
                                         .withOpacity(0.5);
-                                  }),
-                                  border: TableBorder(
-                                    top: BorderSide(
-                                        width: blockVertical * 0.2,
-                                        color: Colors.black.withOpacity(0.3)),
-                                    left: BorderSide(
-                                        width: blockVertical * 0.2,
-                                        color: Colors.black.withOpacity(0.3)),
-                                    right: BorderSide(
-                                        width: blockVertical * 0.2,
-                                        color: Colors.black.withOpacity(0.3)),
-                                    bottom: BorderSide(
-                                        width: blockVertical * 0.2,
-                                        color: Colors.black.withOpacity(0.3)),
-                                    borderRadius: BorderRadius.circular(
-                                        blockVertical * 2),
-                                    verticalInside: BorderSide(
-                                      width: blockVertical * 0.2,
-                                      color: Colors.black.withOpacity(0.3),
-                                    ),
-                                    horizontalInside: BorderSide(
-                                      width: 3,
-                                      color: Colors.black.withOpacity(0.1),
+                                  },
+                                ),
+                                border: TableBorder.all(
+                                  width: blockVertical * 0.2,
+                                  color: Colors.black.withOpacity(0.3),
+                                ),
+                                columns: [
+                                  DataColumn(
+                                    label: Text(
+                                      "No",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: blockVertical * 2,
+                                      ),
                                     ),
                                   ),
-                                  columns: [
-                                    DataColumn(
-                                        onSort: ((ColumnIndex, ascending) {
-                                          setState(() {
-                                            sort = !sort;
-                                          });
-                                          onSortId(ColumnIndex, ascending);
-                                        }),
-                                        label: Text(
-                                          "No",
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: blockVertical * 2),
-                                        )),
-                                    DataColumn(
-                                        label: Text(
-                                      "Id Order",
+                                  DataColumn(
+                                    label: Text(
+                                      "Component",
                                       style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: blockVertical * 2),
-                                    )),
-                                    DataColumn(
-                                        label: Text(
-                                      "Machine",
+                                        color: Colors.black,
+                                        fontSize: blockVertical * 2,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      "Work name",
                                       style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: blockVertical * 2),
-                                    )),
-                                    DataColumn(
-                                        label: Text(
-                                      "Message",
+                                        color: Colors.black,
+                                        fontSize: blockVertical * 2,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      "Checklist",
                                       style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: blockVertical * 2),
-                                    )),
-                                    DataColumn(
-                                        label: Text(
-                                      "Info",
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: blockVertical * 2),
-                                    )),
-                                    DataColumn(
-                                        label: Text(
-                                      "Date",
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: blockVertical * 2),
-                                    )),
-                                    DataColumn(
-                                        label: Text(
-                                      "Done Date",
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: blockVertical * 2),
-                                    )),
-                                    DataColumn(
-                                        label: Text(
-                                      "Solved",
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: blockVertical * 2),
-                                    )),
-                                    DataColumn(
-                                        label: Text(
+                                        color: Colors.black,
+                                        fontSize: blockVertical * 2,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
                                       "Action",
                                       style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: blockVertical * 2),
-                                    )),
-                                  ],
-                                  rows: ListPrev.map(
-                                    (e) {
-                                      //No
-                                      int index = ListPrev.indexOf(e);
-                                      String Number = (index + 1)
-                                          .toString()
-                                          .padLeft(ListPrev.length
-                                              .toString()
-                                              .length);
-                                      //FORMAT TANGGAL ASIA/JAKARTA
-                                      final TScreatedAt =
-                                          DateTime.parse(e.createdAt!);
-                                      final NowCreatedAt = tz.TZDateTime.from(
-                                          TScreatedAt, timeZone);
-                                      final TSupdatedAt =
-                                          DateTime.parse(e.updatedAt!);
-                                      final NowupdatedAt = tz.TZDateTime.from(
-                                          TSupdatedAt, timeZone);
-                                      final formatter =
-                                          DateFormat('dd-MM-yyyy hh:mm:ss a');
-                                      final createdAtFix =
-                                          formatter.format(NowCreatedAt);
-                                      final updatedAtFix =
-                                          formatter.format(NowupdatedAt);
-                                      return DataRow(cells: [
-                                        DataCell(Text(
-                                          Number,
-                                          style: TextStyle(
-                                              fontSize: blockVertical * 2),
-                                        )),
-                                        DataCell(Text(
-                                          "${e.idpreventive}",
-                                          style: TextStyle(
-                                              fontSize: blockVertical * 2),
-                                        )),
-                                        DataCell(Text(
-                                          "${e.machine_id}",
-                                          style: TextStyle(
-                                              fontSize: blockVertical * 2),
-                                        )),
-                                        DataCell(Text(
-                                          "${e.message}",
-                                          style: TextStyle(
-                                              fontSize: blockVertical * 2),
-                                        )),
-                                        DataCell(Text(
-                                          "${e.keterangan}",
-                                          style: TextStyle(
-                                              fontSize: blockVertical * 2),
-                                        )),
-                                        DataCell(Text(
-                                          createdAtFix,
-                                          style: TextStyle(
-                                              fontSize: blockVertical * 2),
-                                        )),
-                                        DataCell(Text(
-                                          (e.solved == true)
-                                              ? updatedAtFix
-                                              : "-",
-                                          style: TextStyle(
-                                              fontSize: blockVertical * 2),
-                                        )),
-                                        DataCell((e.solved == true)
-                                            ? Icon(
-                                                FontAwesomeIcons.check,
-                                                size: blockVertical * 2,
-                                                color: Colors.green,
-                                              )
-                                            : Icon(FontAwesomeIcons.x,
-                                                size: blockVertical * 2,
-                                                color: Colors.red)),
-                                        DataCell((otoritas == "Admin" ||
-                                                otoritas == "User-Maintenance")
-                                            ? (e.solved == false)
-                                                ? ElevatedButton(
-                                                    onPressed: () {
-                                                      UpdatePreventiveMessage
-                                                          .updateMessage(
-                                                              e.machine_id!,
-                                                              e.idpreventive!);
-                                                    },
-                                                    child: Text(
-                                                      "Solve",
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize:
-                                                              blockVertical *
-                                                                  2),
-                                                    ))
-                                                : Text(
-                                                    "Solved",
-                                                    style: TextStyle(
-                                                        color: Colors.black,
-                                                        fontSize:
-                                                            blockVertical * 2),
-                                                  )
-                                            : SizedBox(
-                                                width: 1,
-                                              )),
-                                      ]);
-                                    },
-                                  ).toList(),
-                                );
-                              }),
+                                        color: Colors.black,
+                                        fontSize: blockVertical * 2,
+                                      ),
+                                    ),
+                                  )
+                                ],
+                                rows: snapshot.data!,
+                              );
+                            },
+                          ),
+                          // }),
                         ),
                       ),
                     ),
@@ -380,12 +243,203 @@ class _PreventiveHistoryState extends State<PreventiveHistory> {
                     ),
                     Padding(
                       padding: EdgeInsets.only(
-                          top: blockVertical * 1.5, left: blockVertical * 1.5),
-                      child: Text(
-                        "Main Machine",
-                        style: TextStyle(
-                            fontSize: blockVertical * 3,
-                            fontWeight: FontWeight.bold),
+                          top: blockVertical * 0.75,
+                          left: blockVertical * 1.5,
+                          right: blockVertical * 1.5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(
+                                bottom: MediaQuery.of(context).padding.bottom),
+                            child: SizedBox(
+                              width: 38 * 2.0,
+                              height: 38 + 62.0,
+                              child: Container(
+                                alignment: Alignment.topCenter,
+                                color: Colors.transparent,
+                                child: SizedBox(
+                                  width: 38 * 2.0,
+                                  height: 38 * 2.0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      // alignment: Alignment.center,s
+                                      decoration: BoxDecoration(
+                                        color: HexColor('#20b2aa'),
+                                        gradient: LinearGradient(
+                                            colors: [
+                                              HexColor('#20b2aa'),
+                                              HexColor('#79d0cc'),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight),
+                                        shape: BoxShape.circle,
+                                        boxShadow: <BoxShadow>[
+                                          BoxShadow(
+                                              color: HexColor('#20b2aa')
+                                                  .withOpacity(0.4),
+                                              offset: const Offset(8.0, 16.0),
+                                              blurRadius: 16.0),
+                                        ],
+                                      ),
+                                      child: Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                          splashColor:
+                                              Colors.white.withOpacity(0.1),
+                                          highlightColor: Colors.transparent,
+                                          focusColor: Colors.transparent,
+                                          onTap: () {
+                                            setState(() {
+                                              final newRow = DataRow(
+                                                cells: [
+                                                  DataCell(
+                                                    Text('${rows.length + 1}'),
+                                                  ),
+                                                  DataCell(
+                                                    Text('New Komponen'),
+                                                  ),
+                                                  DataCell(
+                                                    Text('New Pekerjaan'),
+                                                  ),
+                                                  DataCell(
+                                                    Text('New Checklist'),
+                                                  ),
+                                                ],
+                                              );
+                                              rows.add(newRow);
+                                              streamPrev.add(rows);
+                                            });
+                                          },
+                                          child: Icon(
+                                            Icons.add,
+                                            color: DashboardAppTheme.white,
+                                            size: 32,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    // ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                                bottom: MediaQuery.of(context).padding.bottom),
+                            child: SizedBox(
+                              width: 38 * 2.0,
+                              height: 38 + 62.0,
+                              child: Container(
+                                alignment: Alignment.topCenter,
+                                color: Colors.transparent,
+                                child: SizedBox(
+                                  width: 38 * 2.0,
+                                  height: 38 * 2.0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      // alignment: Alignment.center,s
+                                      decoration: BoxDecoration(
+                                        color: DashboardAppTheme.nearlyDarkBlue,
+                                        gradient: LinearGradient(
+                                            colors: [
+                                              DashboardAppTheme.nearlyDarkBlue,
+                                              HexColor('#6A88E5'),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight),
+                                        shape: BoxShape.circle,
+                                        boxShadow: <BoxShadow>[
+                                          BoxShadow(
+                                              color: DashboardAppTheme
+                                                  .nearlyDarkBlue
+                                                  .withOpacity(0.4),
+                                              offset: const Offset(8.0, 16.0),
+                                              blurRadius: 16.0),
+                                        ],
+                                      ),
+                                      child: Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                          splashColor:
+                                              Colors.white.withOpacity(0.1),
+                                          highlightColor: Colors.transparent,
+                                          focusColor: Colors.transparent,
+                                          onTap: () {},
+                                          child: Icon(
+                                            Icons.save,
+                                            color: DashboardAppTheme.white,
+                                            size: 32,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    // ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                                bottom: MediaQuery.of(context).padding.bottom),
+                            child: SizedBox(
+                              width: 38 * 2.0,
+                              height: 38 + 62.0,
+                              child: Container(
+                                alignment: Alignment.topCenter,
+                                color: Colors.transparent,
+                                child: SizedBox(
+                                  width: 38 * 2.0,
+                                  height: 38 * 2.0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      // alignment: Alignment.center,s
+                                      decoration: BoxDecoration(
+                                        color: HexColor('#cc0000'),
+                                        gradient: LinearGradient(
+                                            colors: [
+                                              HexColor('#cc0000'),
+                                              HexColor('#e06666'),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight),
+                                        shape: BoxShape.circle,
+                                        boxShadow: <BoxShadow>[
+                                          BoxShadow(
+                                              color: HexColor('#cc0000')
+                                                  .withOpacity(0.4),
+                                              offset: const Offset(8.0, 16.0),
+                                              blurRadius: 16.0),
+                                        ],
+                                      ),
+                                      child: Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                          splashColor:
+                                              Colors.white.withOpacity(0.1),
+                                          highlightColor: Colors.transparent,
+                                          focusColor: Colors.transparent,
+                                          onTap: () {},
+                                          child: Icon(
+                                            Icons.picture_as_pdf,
+                                            color: DashboardAppTheme.white,
+                                            size: 32,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    // ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     )
                   ],
@@ -394,76 +448,7 @@ class _PreventiveHistoryState extends State<PreventiveHistory> {
             ],
           ),
         ),
-
-        // floatingActionButton: FabCircularMenu(
-        //     fabOpenIcon: Icon(
-        //       Icons.menu,
-        //       color: Colors.white,
-        //     ),
-        //     fabCloseIcon: Icon(
-        //       Icons.close,
-        //       color: Colors.white,
-        //     ),
-        //     fabColor: Color.fromARGB(255, 0, 83, 151),
-        //     ringColor: Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
-        //     children: <Widget>[
-        //       IconButton(
-        //           icon: Icon(
-        //             FontAwesomeIcons.one,
-        //             color: Color.fromARGB(255, 34, 93, 122),
-        //           ),
-        //           onPressed: () async {
-        //             setState(() {
-        //               m = 1;
-        //             });
-        //             await prevData();
-        //           }),
-        //       IconButton(
-        //           icon: Icon(FontAwesomeIcons.two,
-        //               color: Color.fromARGB(255, 34, 93, 122)),
-        //           onPressed: () async {
-        //             setState(() {
-        //               m = 2;
-        //             });
-        //             await prevData();
-        //           }),
-        //       IconButton(
-        //           icon: Icon(FontAwesomeIcons.three,
-        //               color: Color.fromARGB(255, 34, 93, 122)),
-        //           onPressed: () async {
-        //             setState(() {
-        //               m = 3;
-        //             });
-        //             await prevData();
-        //           }),
-        //       IconButton(
-        //           icon: Icon(FontAwesomeIcons.four,
-        //               color: Color.fromARGB(255, 34, 93, 122)),
-        //           onPressed: () async {
-        //             setState(() {
-        //               m = 4;
-        //             });
-        //             await prevData();
-        //           })
-        //     ]),
       ),
     );
   }
-
-  onSortId(int ColumnIndex, bool ascending) {
-    if (ColumnIndex == 0) {
-      if (ascending) {
-        ListPrev.sort((a, b) => a.idpreventive!.compareTo(b.idpreventive!));
-      } else if (ascending == false) {
-        ListPrev.sort((a, b) => b.idpreventive!.compareTo(a.idpreventive!));
-      }
-    }
-  }
-
-  // FabCircularMenu(
-  //     {required Icon fabOpenIcon,
-  //     required Icon fabCloseIcon,
-  //     required Color fabColor,
-  //     required Color ringColor,
-  //     required List<Widget> children}) {}
 }

@@ -1,7 +1,15 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
-
+import 'package:intl/intl.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/material.dart';
+import 'package:project_tugas_akhir_copy/models/bigloss_model.dart';
+import 'package:project_tugas_akhir_copy/services/bigloss_service.dart';
 import 'package:project_tugas_akhir_copy/services/costprice_service.dart';
 import 'package:project_tugas_akhir_copy/services/oee_service.dart';
 // import 'package:project_tugas_akhir_copy/services/param_service.dart';
@@ -10,68 +18,78 @@ import 'package:project_tugas_akhir_copy/models/costprice_model.dart';
 import 'package:project_tugas_akhir_copy/models/oee_model.dart';
 // import 'package:project_tugas_akhir_copy/models/param_model.dart';
 import 'package:project_tugas_akhir_copy/models/quality_model.dart';
-import 'package:intl/intl.dart';
-import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:project_tugas_akhir_copy/services/stock_service.dart';
 import 'package:project_tugas_akhir_copy/models/stock_model.dart';
 
 //STOCK ALL
 StreamController<List> streamStock = StreamController.broadcast();
-List<AllstockModel> stockList = [];
+List<StockModel> stockList = [];
 ReadStock getstockM1 = ReadStock();
 Future<void> stockData() async {
-  stockList = await getstockM1.getallStock();
+  stockList = await ReadStock.historyStock();
   streamStock.add(stockList);
 }
 
 //PRODUCTION ALL
-StreamController<List> streamProd = StreamController.broadcast();
-List<DashQuality> qList = [];
-QualityDash quality = QualityDash();
-Future<void> qualityData() async {
-  qList = await quality.dashQualityM();
-  streamProd.add(qList);
+StreamController<List<DashQuality>> streamProcessed =
+    StreamController.broadcast();
+List<DashQuality> qlist = [];
+HistoryQuality getStockprocessed = HistoryQuality();
+Future<void> processedData() async {
+  qlist = await HistoryQuality.historyQuality(1);
+  streamProcessed.add(qlist);
 }
 
 //OEE ALL
-StreamController<List> streamOEE = StreamController.broadcast();
-List<OEEdashModel> oeeList = [];
-GetOEE oee = GetOEE();
-Future<void> oeeData() async {
-  oeeList = await oee.dashOEE();
-  streamOEE.add(oeeList);
+StreamController<List<OEEdashModel>> streamOEEH = StreamController.broadcast();
+List<OEEdashModel> listOEEH = [];
+OEEHistori latestOEEH = OEEHistori();
+Future<void> oeeHData() async {
+  listOEEH = await OEEHistori.historyOEE();
+  streamOEEH.add(listOEEH);
 }
 
-//Parameter ALL
-// StreamController<List> streamParam = StreamController.broadcast();
-// List<ParamReportModel> paramList = [];
-// ReportParam param = ReportParam();
-// Future<void> ParamData() async {
-//   ParamList = await Param.getParam();
-//   streamParam.add(ParamList);
+StreamController<List<DashBLModel>> streamBL = StreamController.broadcast();
+List<DashBLModel> blList = [];
+DashBL bigloss = DashBL();
+Future<void> blData() async {
+  blList = await HistoryBL.historyBL();
+  streamBL.add(blList);
+}
+
+//RIWAYAT STOCK IN
+StreamController<List> streamRiwayatStock = StreamController.broadcast();
+List<Historimodel> riwayatStockList = [];
+Getriwayat getriwayatstockM1 = Getriwayat();
+Future<void> riwayatstockData() async {
+  riwayatStockList = await getriwayatstockM1.gethistori(1);
+  streamRiwayatStock.add(riwayatStockList);
+}
+
+//RIWAYAT STOCK OUT
+// StreamController<List> streamProcessed = StreamController.broadcast();
+// List<RecQuality> stockProcessed = [];
+// RecordQuality getStockprocessed = RecordQuality();
+// Future<void> processedData() async {
+//   stockProcessed = await getStockprocessed.getrecQuality(1);
+//   streamProcessed.add(stockProcessed);
 // }
-
-//COST PRICE ALL
-StreamController<List> streamCost = StreamController.broadcast();
-List<GetCostdashModel> costList = [];
-GetDashCost cost = GetDashCost();
-Future<void> costData() async {
-  costList = await cost.getCostDash();
-  streamCost.add(costList);
-}
 
 //----------------------------------ALL MACHINE & ALL REPORT---------------------------------------//
 Future<void> allmachinePDF() async {
   await stockData();
-  await qualityData();
-  await oeeData();
-
-  await costData();
+  await processedData();
+  await oeeHData();
+  await blData();
 
   final pdf = pw.Document();
+
+  // Load custom fonts
+  final fontDataRegular = await rootBundle.load("fonts/NotoSans-Regular.ttf");
+  final fontRegular = pw.Font.ttf(fontDataRegular);
+
+  final fontDataBold = await rootBundle.load("fonts/NotoSans-Bold.ttf");
+  final fontBold = pw.Font.ttf(fontDataBold);
 
   pdf.addPage(
     pw.MultiPage(
@@ -82,16 +100,14 @@ Future<void> allmachinePDF() async {
             child: pw.Text(
               "PRODUCTION MONITORING SYSTEM REPORT",
               softWrap: true,
-              style:
-                  pw.TextStyle(fontBold: pw.Font.courierBold(), fontSize: 16),
+              style: pw.TextStyle(font: fontBold, fontSize: 16),
             ),
           ),
           pw.Center(
             child: pw.Text(
-              "4 MACHINE",
+              "PRESS MACHINE",
               softWrap: true,
-              style:
-                  pw.TextStyle(fontBold: pw.Font.courierBold(), fontSize: 16),
+              style: pw.TextStyle(font: fontBold, fontSize: 16),
             ),
           ),
           pw.SizedBox(height: 20),
@@ -99,35 +115,30 @@ Future<void> allmachinePDF() async {
             "PRODUCTION",
             softWrap: true,
             style: pw.TextStyle(
-              fontWeight: pw.FontWeight.bold,
+              font: fontBold,
             ),
           ),
           pw.Table.fromTextArray(
-              cellStyle: pw.TextStyle(fontSize: 12),
-              headerStyle:
-                  pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+              cellStyle: pw.TextStyle(font: fontRegular, fontSize: 12),
+              headerStyle: pw.TextStyle(font: fontBold, fontSize: 12),
               headerAlignment: pw.Alignment.center,
               cellAlignment: pw.Alignment.center,
               headers: [
-                'Machine',
+                'Initially Created',
                 'Latest Update',
-                'Type',
                 'Processed (unit)',
                 'Good (unit)',
                 'Defect (unit)',
               ],
-              data: qList
+              data: qlist
                   .map((e) => [
-                        "${e.machine_id}",
-                        (DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                            .parse(e.updatedAt!)
-                            .toLocal()
-                            .toString()
-                            .split(' ')[0]),
-                        // "${e.tipe}",
-                        "${e.processed}",
-                        "${e.good}",
-                        "${e.defect}",
+                        DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                            DateTime.parse(e.updatedAt.toString()).toLocal()),
+                        DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                            DateTime.parse(e.updatedAt.toString()).toLocal()),
+                        "${(e.processed).toInt()}",
+                        "${(e.good).toInt()}",
+                        "${(e.defect).toInt()}",
                       ])
                   .toList()),
           pw.SizedBox(height: 10),
@@ -135,31 +146,28 @@ Future<void> allmachinePDF() async {
             "OVERALL EQUIPMENT EFFECTIVENESS",
             softWrap: true,
             style: pw.TextStyle(
-              fontWeight: pw.FontWeight.bold,
+              font: fontBold,
             ),
           ),
           pw.Table.fromTextArray(
-              cellStyle: pw.TextStyle(fontSize: 12),
-              headerStyle:
-                  pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+              cellStyle: pw.TextStyle(font: fontRegular, fontSize: 12),
+              headerStyle: pw.TextStyle(font: fontBold, fontSize: 12),
               headerAlignment: pw.Alignment.center,
               cellAlignment: pw.Alignment.center,
               headers: [
-                'Machine',
+                'Initially Created',
                 'Latest Update',
                 'Availability (%)',
                 'Performance (%)',
                 'Quality (%)',
                 'OEE Result (%)'
               ],
-              data: oeeList
+              data: listOEEH
                   .map((e) => [
-                        "${e.machine_id}",
-                        (DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                            .parse(e.updatedAt!)
-                            .toLocal()
-                            .toString()
-                            .split(' ')[0]),
+                        DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                            DateTime.parse(e.createdAt.toString()).toLocal()),
+                        DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                            DateTime.parse(e.updatedAt.toString()).toLocal()),
                         "${(e.availability * 100).toStringAsFixed(2)}",
                         "${(e.performance * 100).toStringAsFixed(2)}",
                         "${(e.quality * 100).toStringAsFixed(2)}",
@@ -167,108 +175,169 @@ Future<void> allmachinePDF() async {
                       ])
                   .toList()),
           pw.SizedBox(height: 10),
-          // pw.Text(
-          //   "PARAMETER",
-          //   softWrap: true,
-          //   style: pw.TextStyle(
-          //     fontWeight: pw.FontWeight.bold,
-          //   ),
-          // ),
-          // pw.Table.fromTextArray(
-          //     cellStyle: pw.TextStyle(fontSize: 12),
-          //     headerStyle:
-          //         pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
-          //     headerAlignment: pw.Alignment.center,
-          //     cellAlignment: pw.Alignment.center,
-          //     headers: [
-          //       'Machine',
-          //       'Latest Update',
-          //       'Type',
-          //       'Loading Time (menit)',
-          //       'Cycle Time (menit)',
-          //       'OEE Target (%)',
-          //     ],
-          //     data: paramList.map((e) => [
-          //           "${e.machine_id}",
-          //           (DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-          //               .parse(e.updatedAt!)
-          //               .toLocal()
-          //               .toString()
-          //               .split(' ')[0]),
-          //           "${e.tipe_benda}",
-          //           "${e.loading_time}",
-          //           "${e.cycle_time}",
-          //           "${e.oee_target}",
-          //         ]).toList()),
           pw.SizedBox(height: 10),
           pw.Text(
             "STOCK",
             softWrap: true,
             style: pw.TextStyle(
-              fontWeight: pw.FontWeight.bold,
+              font: fontBold,
             ),
           ),
           pw.Table.fromTextArray(
-              cellStyle: pw.TextStyle(fontSize: 12),
-              headerStyle:
-                  pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+              cellStyle: pw.TextStyle(font: fontRegular, fontSize: 12),
+              headerStyle: pw.TextStyle(font: fontBold, fontSize: 12),
               headerAlignment: pw.Alignment.center,
               cellAlignment: pw.Alignment.center,
-              headers: [
-                'Machine',
-                'Latest Update',
-                'Type A (unit)',
-                'Type B (unit)',
-                'Type C (unit)',
-              ],
+              headers: ['Latest Update', 'Stock', 'StockIn', 'StockOut'],
               data: stockList
                   .map((e) => [
-                        "${e.machine_id}",
-                        (DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                            .parse(e.updatedAt!)
-                            .toLocal()
-                            .toString()
-                            .split(' ')[0]),
-                        "${e.A}",
-                        "${e.B}",
-                        "${e.C}"
+                        DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                            DateTime.parse(e.updatedAt.toString()).toLocal()),
+                        "${e.stock}",
+                        "${e.stockIn}",
+                        "${e.stockOut}",
                       ])
                   .toList()),
           pw.SizedBox(height: 70),
           pw.Text(
-            "COST PRICE",
+            "SIX BIG LOSSES",
             softWrap: true,
             style: pw.TextStyle(
-              fontWeight: pw.FontWeight.bold,
+              font: fontBold,
             ),
           ),
           pw.Table.fromTextArray(
-            cellStyle: pw.TextStyle(fontSize: 12),
-            headerStyle:
-                pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+              cellStyle: pw.TextStyle(font: fontRegular, fontSize: 12),
+              headerStyle: pw.TextStyle(font: fontBold, fontSize: 12),
+              headerAlignment: pw.Alignment.center,
+              cellAlignment: pw.Alignment.center,
+              headers: [
+                'Initially Created',
+                'Latest Update',
+                'Setup',
+                'Breakdown',
+                'Stoppage',
+                'Speedloss',
+                'Startup Reject',
+                'Reject'
+              ],
+              data: blList
+                  .map((e) => [
+                        DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                            DateTime.parse(e.createdAt.toString()).toLocal()),
+                        DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                            DateTime.parse(e.updatedAt.toString()).toLocal()),
+                        "${(e.setup / 60).toStringAsFixed(2)} Minutes",
+                        "${(e.breakdown / 60).toStringAsFixed(2)} Minutes",
+                        "${(e.stoppage / 60).toStringAsFixed(2)} Minutes",
+                        "${(e.speed / 60).toStringAsFixed(2)} Minutes",
+                        "${(e.startup).toInt()} Unit ",
+                        "${(e.reject).toInt()} Unit "
+                      ])
+                  .toList()),
+        ];
+      },
+    ),
+  ); // Page
+
+  // Save PDF
+  Uint8List bytes = await pdf.save();
+
+  // Get external storage directory
+  Directory? downloadsDir = await getExternalStorageDirectory();
+  if (downloadsDir == null) {
+    throw FileSystemException("Could not get external storage directory");
+  }
+
+  // Create a directory within the external storage directory
+  String dirPath = '${downloadsDir.path}/ProductionMonitoringReports';
+  Directory directory = Directory(dirPath);
+  if (!(await directory.exists())) {
+    await directory.create(recursive: true);
+  }
+
+  // Write PDF to a file within the created directory
+  String filePath = '$dirPath/Production Monitoring Report.pdf';
+  File file = File(filePath);
+  await file.writeAsBytes(bytes);
+
+  // Log path for debugging
+  print('PDF saved at: $filePath');
+
+  // Open PDF
+  final result = await OpenFile.open(filePath);
+  print(result);
+} //----------------------------------ALL MACHINE & ALL REPORT END---------------------------------------//
+
+//----------------------------------BIGLOSSES---------------------------------------//
+
+Future<void> AMBL() async {
+  await blData();
+  final pdf = pw.Document();
+// Load custom fonts
+  final fontDataRegular = await rootBundle.load("fonts/NotoSans-Regular.ttf");
+  final fontRegular = pw.Font.ttf(fontDataRegular);
+
+  final fontDataBold = await rootBundle.load("fonts/NotoSans-Bold.ttf");
+  final fontBold = pw.Font.ttf(fontDataBold);
+
+  pdf.addPage(
+    pw.MultiPage(
+      pageFormat: PdfPageFormat.a4,
+      build: (pw.Context context) {
+        return [
+          pw.Center(
+            child: pw.Text(
+              "SIX BIGLOSSES REPORT",
+              softWrap: true,
+              style: pw.TextStyle(font: fontBold, fontSize: 16),
+            ),
+          ),
+          pw.Center(
+            child: pw.Text(
+              "PRESS MACHINE",
+              softWrap: true,
+              style: pw.TextStyle(font: fontBold, fontSize: 16),
+            ),
+          ),
+          pw.SizedBox(height: 20),
+          pw.Text(
+            "PRODUCTION",
+            softWrap: true,
+            style: pw.TextStyle(
+              font: fontBold,
+            ),
+          ),
+          pw.Table.fromTextArray(
+            cellStyle: pw.TextStyle(font: fontRegular, fontSize: 12),
+            headerStyle: pw.TextStyle(fontSize: 12, font: fontBold),
             headerAlignment: pw.Alignment.center,
             cellAlignment: pw.Alignment.center,
             headers: [
-              'Machine',
+              'Initially Created',
               'Latest Update',
-              'Type',
-              'Good Processed',
-              'Unit Price',
-              'Total Price',
+              'Setup (Min)',
+              'Breakdown (Min)',
+              'Stoppage (Min)',
+              'Speedloss (Min)',
+              'Startup Reject (Unit)',
+              'Reject (Unit)'
             ],
-            data: costList
+            data: blList
                 .map(
                   (e) => [
-                    "${e.machine_id}",
-                    (DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                        .parse(e.updatedAt!)
-                        .toLocal()
-                        .toString()
-                        .split(' ')[0]),
-                    "${e.tipe}",
-                    "${e.good}",
-                    "${e.harga_unit}",
-                    "${e.total_harga}",
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                        DateTime.parse(e.createdAt.toString()).toLocal()),
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                        DateTime.parse(e.updatedAt.toString()).toLocal()),
+                    // "${e.tipe}",
+                    "${(e.setup / 60).toStringAsFixed(2)}",
+                    "${(e.breakdown / 60).toStringAsFixed(2)}",
+                    "${(e.stoppage / 60).toStringAsFixed(2)}",
+
+                    "${(e.speed / 60).toStringAsFixed(2)}",
+                    "${(e.startup).toInt()}",
+                    "${(e.reject).toInt()}"
                   ],
                 )
                 .toList(),
@@ -277,26 +346,45 @@ Future<void> allmachinePDF() async {
       },
     ),
   ); // Page
-  // SIMPAN
+  // Save PDF
   Uint8List bytes = await pdf.save();
 
-  // buat file kosong di directory
-  final dir = await getApplicationDocumentsDirectory();
-  final file = File('${dir.path}/Production Monitoring Report.pdf');
+  // Get external storage directory
+  Directory? downloadsDir = await getExternalStorageDirectory();
+  if (downloadsDir == null) {
+    throw FileSystemException("Could not get external storage directory");
+  }
 
-  // timpa file kosong dengan file pdf
+  // Create a directory within the external storage directory
+  String dirPath = '${downloadsDir.path}/ProductionMonitoringReports';
+  Directory directory = Directory(dirPath);
+  if (!(await directory.exists())) {
+    await directory.create(recursive: true);
+  }
+
+  // Write PDF to a file within the created directory
+  String filePath = '$dirPath/Production Monitoring Report.pdf';
+  File file = File(filePath);
   await file.writeAsBytes(bytes);
 
-  //open pdf
-  await OpenFile.open(file.path);
+  // Log path for debugging
+  print('PDF saved at: $filePath');
+
+  // Open PDF
+  final result = await OpenFile.open(filePath);
+  print(result);
 }
-//----------------------------------ALL MACHINE & ALL REPORT END---------------------------------------//
 
-//----------------------------------ALL MACHINE REPORT PRODUCTION---------------------------------------//
-
+//---------------------------------------------REPORT PRODUCTION----------------------------------------------------//
 Future<void> AMRP() async {
-  await qualityData();
+  await processedData();
   final pdf = pw.Document();
+// Load custom fonts
+  final fontDataRegular = await rootBundle.load("fonts/NotoSans-Regular.ttf");
+  final fontRegular = pw.Font.ttf(fontDataRegular);
+
+  final fontDataBold = await rootBundle.load("fonts/NotoSans-Bold.ttf");
+  final fontBold = pw.Font.ttf(fontDataBold);
 
   pdf.addPage(
     pw.MultiPage(
@@ -307,16 +395,14 @@ Future<void> AMRP() async {
             child: pw.Text(
               "PRODUCTION REPORT",
               softWrap: true,
-              style:
-                  pw.TextStyle(fontBold: pw.Font.courierBold(), fontSize: 16),
+              style: pw.TextStyle(font: fontBold, fontSize: 16),
             ),
           ),
           pw.Center(
             child: pw.Text(
-              "4 MACHINE",
+              "PRESS MACHINE",
               softWrap: true,
-              style:
-                  pw.TextStyle(fontBold: pw.Font.courierBold(), fontSize: 16),
+              style: pw.TextStyle(font: fontBold, fontSize: 16),
             ),
           ),
           pw.SizedBox(height: 20),
@@ -324,32 +410,28 @@ Future<void> AMRP() async {
             "PRODUCTION",
             softWrap: true,
             style: pw.TextStyle(
-              fontWeight: pw.FontWeight.bold,
+              font: fontBold,
             ),
           ),
           pw.Table.fromTextArray(
-            cellStyle: pw.TextStyle(fontSize: 12),
-            headerStyle:
-                pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+            cellStyle: pw.TextStyle(font: fontRegular, fontSize: 12),
+            headerStyle: pw.TextStyle(fontSize: 12, font: fontBold),
             headerAlignment: pw.Alignment.center,
             cellAlignment: pw.Alignment.center,
             headers: [
-              'Machine',
+              'Initially Created',
               'Latest Update',
-              'Type',
               'Processed (unit)',
               'Good (unit)',
               'Defect (unit)',
             ],
-            data: qList
+            data: qlist
                 .map(
                   (e) => [
-                    "${e.machine_id}",
-                    (DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                        .parse(e.updatedAt!)
-                        .toLocal()
-                        .toString()
-                        .split(' ')[0]),
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                        DateTime.parse(e.createdAt.toString()).toLocal()),
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                        DateTime.parse(e.updatedAt.toString()).toLocal()),
                     // "${e.tipe}",
                     "${e.processed}",
                     "${e.good}",
@@ -362,25 +444,46 @@ Future<void> AMRP() async {
       },
     ),
   ); // Page
-  // SIMPAN
+  // Save PDF
   Uint8List bytes = await pdf.save();
 
-  // buat file kosong di directory
-  final dir = await getApplicationDocumentsDirectory();
-  final file = File('${dir.path}/Production Report.pdf');
+  // Get external storage directory
+  Directory? downloadsDir = await getExternalStorageDirectory();
+  if (downloadsDir == null) {
+    throw FileSystemException("Could not get external storage directory");
+  }
 
-  // timpa file kosong dengan file pdf
+  // Create a directory within the external storage directory
+  String dirPath = '${downloadsDir.path}/ProductionMonitoringReports';
+  Directory directory = Directory(dirPath);
+  if (!(await directory.exists())) {
+    await directory.create(recursive: true);
+  }
+
+  // Write PDF to a file within the created directory
+  String filePath = '$dirPath/Production Monitoring Report.pdf';
+  File file = File(filePath);
   await file.writeAsBytes(bytes);
 
-  //open pdf
-  await OpenFile.open(file.path);
+  // Log path for debugging
+  print('PDF saved at: $filePath');
+
+  // Open PDF
+  final result = await OpenFile.open(filePath);
+  print(result);
 }
 
 //----------------------------------ALL MACHINE REPORT OEE---------------------------------------//
 
 Future<void> AMROEE() async {
-  await oeeData();
+  await oeeHData();
   final pdf = pw.Document();
+// Load custom fonts
+  final fontDataRegular = await rootBundle.load("fonts/NotoSans-Regular.ttf");
+  final fontRegular = pw.Font.ttf(fontDataRegular);
+
+  final fontDataBold = await rootBundle.load("fonts/NotoSans-Bold.ttf");
+  final fontBold = pw.Font.ttf(fontDataBold);
 
   pdf.addPage(
     pw.MultiPage(
@@ -391,16 +494,14 @@ Future<void> AMROEE() async {
             child: pw.Text(
               "OEE REPORT",
               softWrap: true,
-              style:
-                  pw.TextStyle(fontBold: pw.Font.courierBold(), fontSize: 16),
+              style: pw.TextStyle(font: fontBold, fontSize: 16),
             ),
           ),
           pw.Center(
             child: pw.Text(
-              "4 MACHINE",
+              "PRESS MACHINE",
               softWrap: true,
-              style:
-                  pw.TextStyle(fontBold: pw.Font.courierBold(), fontSize: 16),
+              style: pw.TextStyle(font: fontBold, fontSize: 16),
             ),
           ),
           pw.SizedBox(height: 20),
@@ -408,32 +509,29 @@ Future<void> AMROEE() async {
             "OVERALL EQUIPMENT EFFECTIVENESS",
             softWrap: true,
             style: pw.TextStyle(
-              fontWeight: pw.FontWeight.bold,
+              font: fontBold,
             ),
           ),
           pw.Table.fromTextArray(
-            cellStyle: pw.TextStyle(fontSize: 12),
-            headerStyle:
-                pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+            cellStyle: pw.TextStyle(font: fontRegular, fontSize: 12),
+            headerStyle: pw.TextStyle(fontSize: 12, font: fontBold),
             headerAlignment: pw.Alignment.center,
             cellAlignment: pw.Alignment.center,
             headers: [
-              'Machine',
+              'Initially Created',
               'Latest Update',
               'Availability (%)',
               'Performance (%)',
               'Quality (%)',
               'OEE Result (%)'
             ],
-            data: oeeList
+            data: listOEEH
                 .map(
                   (e) => [
-                    "${e.machine_id}",
-                    (DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                        .parse(e.updatedAt!)
-                        .toLocal()
-                        .toString()
-                        .split(' ')[0]),
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                        DateTime.parse(e.createdAt.toString()).toLocal()),
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                        DateTime.parse(e.updatedAt.toString()).toLocal()),
                     "${(e.availability * 100).toStringAsFixed(2)}",
                     "${(e.performance * 100).toStringAsFixed(2)}",
                     "${(e.quality * 100).toStringAsFixed(2)}",
@@ -446,18 +544,33 @@ Future<void> AMROEE() async {
       },
     ),
   ); // Page
-  // SIMPAN
+  // Save PDF
   Uint8List bytes = await pdf.save();
 
-  // buat file kosong di directory
-  final dir = await getApplicationDocumentsDirectory();
-  final file = File('${dir.path}/OEE Report.pdf');
+  // Get external storage directory
+  Directory? downloadsDir = await getExternalStorageDirectory();
+  if (downloadsDir == null) {
+    throw FileSystemException("Could not get external storage directory");
+  }
 
-  // timpa file kosong dengan file pdf
+  // Create a directory within the external storage directory
+  String dirPath = '${downloadsDir.path}/ProductionMonitoringReports';
+  Directory directory = Directory(dirPath);
+  if (!(await directory.exists())) {
+    await directory.create(recursive: true);
+  }
+
+  // Write PDF to a file within the created directory
+  String filePath = '$dirPath/Production Monitoring Report.pdf';
+  File file = File(filePath);
   await file.writeAsBytes(bytes);
 
-  //open pdf
-  await OpenFile.open(file.path);
+  // Log path for debugging
+  print('PDF saved at: $filePath');
+
+  // Open PDF
+  final result = await OpenFile.open(filePath);
+  print(result);
 }
 
 //----------------------------------ALL MACHINE REPORT PARAMETER---------------------------------------//
@@ -547,6 +660,12 @@ Future<void> AMROEE() async {
 Future<void> AMRS() async {
   await stockData();
   final pdf = pw.Document();
+// Load custom fonts
+  final fontDataRegular = await rootBundle.load("fonts/NotoSans-Regular.ttf");
+  final fontRegular = pw.Font.ttf(fontDataRegular);
+
+  final fontDataBold = await rootBundle.load("fonts/NotoSans-Bold.ttf");
+  final fontBold = pw.Font.ttf(fontDataBold);
 
   pdf.addPage(
     pw.MultiPage(
@@ -557,16 +676,14 @@ Future<void> AMRS() async {
             child: pw.Text(
               "STOCK REPORT",
               softWrap: true,
-              style:
-                  pw.TextStyle(fontBold: pw.Font.courierBold(), fontSize: 16),
+              style: pw.TextStyle(font: fontBold, fontSize: 16),
             ),
           ),
           pw.Center(
             child: pw.Text(
-              "4 MACHINE",
+              "PRESS MACHINE",
               softWrap: true,
-              style:
-                  pw.TextStyle(fontBold: pw.Font.courierBold(), fontSize: 16),
+              style: pw.TextStyle(font: fontBold, fontSize: 16),
             ),
           ),
           pw.SizedBox(height: 20),
@@ -574,34 +691,31 @@ Future<void> AMRS() async {
             "STOCK",
             softWrap: true,
             style: pw.TextStyle(
-              fontWeight: pw.FontWeight.bold,
+              font: fontBold,
             ),
           ),
           pw.Table.fromTextArray(
-            cellStyle: pw.TextStyle(fontSize: 12),
-            headerStyle:
-                pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+            cellStyle: pw.TextStyle(font: fontRegular, fontSize: 12),
+            headerStyle: pw.TextStyle(fontSize: 12, font: fontBold),
             headerAlignment: pw.Alignment.center,
             cellAlignment: pw.Alignment.center,
             headers: [
-              'Machine',
+              // 'Initially Created',
               'Latest Update',
-              'Type A (unit)',
-              'Type B (unit)',
-              'Type C (unit)',
+              'Stock',
+              'StockIn',
+              'StockOut'
             ],
             data: stockList
                 .map(
                   (e) => [
-                    "${e.machine_id}",
-                    (DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                        .parse(e.updatedAt!)
-                        .toLocal()
-                        .toString()
-                        .split(' ')[0]),
-                    "${e.A}",
-                    "${e.B}",
-                    "${e.C}"
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                        DateTime.parse(e.updatedAt.toString()).toLocal()),
+                    "${e.stock}",
+                    "${e.stockIn}",
+                    "${e.stockOut}"
+                    // "${e.B}",
+                    // "${e.C}"
                   ],
                 )
                 .toList(),
@@ -610,99 +724,115 @@ Future<void> AMRS() async {
       },
     ),
   ); // Page
-  // SIMPAN
+  // Save PDF
   Uint8List bytes = await pdf.save();
 
-  // buat file kosong di directory
-  final dir = await getApplicationDocumentsDirectory();
-  final file = File('${dir.path}/Stock Report.pdf');
+  // Get external storage directory
+  Directory? downloadsDir = await getExternalStorageDirectory();
+  if (downloadsDir == null) {
+    throw FileSystemException("Could not get external storage directory");
+  }
 
-  // timpa file kosong dengan file pdf
+  // Create a directory within the external storage directory
+  String dirPath = '${downloadsDir.path}/ProductionMonitoringReports';
+  Directory directory = Directory(dirPath);
+  if (!(await directory.exists())) {
+    await directory.create(recursive: true);
+  }
+
+  // Write PDF to a file within the created directory
+  String filePath = '$dirPath/Production Monitoring Report.pdf';
+  File file = File(filePath);
   await file.writeAsBytes(bytes);
 
-  //open pdf
-  await OpenFile.open(file.path);
+  // Log path for debugging
+  print('PDF saved at: $filePath');
+
+  // Open PDF
+  final result = await OpenFile.open(filePath);
+  print(result);
 }
+
 //----------------------------------ALL MACHINE REPORT COST PRICE---------------------------------------//
 
-Future<void> AMRCS() async {
-  await costData();
-  final pdf = pw.Document();
+// Future<void> AMRCS() async {
+//   await costData();
+//   final pdf = pw.Document();
 
-  pdf.addPage(
-    pw.MultiPage(
-      pageFormat: PdfPageFormat.a4,
-      build: (pw.Context context) {
-        return [
-          pw.Center(
-            child: pw.Text(
-              "COST PRICE REPORT",
-              softWrap: true,
-              style:
-                  pw.TextStyle(fontBold: pw.Font.courierBold(), fontSize: 16),
-            ),
-          ),
-          pw.Center(
-            child: pw.Text(
-              "4 MACHINE",
-              softWrap: true,
-              style:
-                  pw.TextStyle(fontBold: pw.Font.courierBold(), fontSize: 16),
-            ),
-          ),
-          pw.SizedBox(height: 20),
-          pw.Text(
-            "COST PRICE",
-            softWrap: true,
-            style: pw.TextStyle(
-              fontWeight: pw.FontWeight.bold,
-            ),
-          ),
-          pw.Table.fromTextArray(
-            cellStyle: pw.TextStyle(fontSize: 12),
-            headerStyle:
-                pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
-            headerAlignment: pw.Alignment.center,
-            cellAlignment: pw.Alignment.center,
-            headers: [
-              'Machine',
-              'Latest Update',
-              'Type',
-              'Good Processed',
-              'Unit Price',
-              'Total Price',
-            ],
-            data: costList
-                .map(
-                  (e) => [
-                    "${e.machine_id}",
-                    (DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                        .parse(e.updatedAt!)
-                        .toLocal()
-                        .toString()
-                        .split(' ')[0]),
-                    "${e.tipe}",
-                    "${e.good}",
-                    "${e.harga_unit}",
-                    "${e.total_harga}"
-                  ],
-                )
-                .toList(),
-          ),
-        ];
-      },
-    ),
-  ); // Page
-  // SIMPAN
-  Uint8List bytes = await pdf.save();
+//   pdf.addPage(
+//     pw.MultiPage(
+//       pageFormat: PdfPageFormat.a4,
+//       build: (pw.Context context) {
+//         return [
+//           pw.Center(
+//             child: pw.Text(
+//               "COST PRICE REPORT",
+//               softWrap: true,
+//               style:
+//                   pw.TextStyle(fontBold: pw.Font.courierBold(), fontSize: 16),
+//             ),
+//           ),
+//           pw.Center(
+//             child: pw.Text(
+//               "4 MACHINE",
+//               softWrap: true,
+//               style:
+//                   pw.TextStyle(fontBold: pw.Font.courierBold(), fontSize: 16),
+//             ),
+//           ),
+//           pw.SizedBox(height: 20),
+//           pw.Text(
+//             "COST PRICE",
+//             softWrap: true,
+//             style: pw.TextStyle(
+//               fontWeight: pw.FontWeight.bold,
+//             ),
+//           ),
+//           pw.Table.fromTextArray(
+//             cellStyle: pw.TextStyle(fontSize: 12),
+//             headerStyle:
+//                 pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+//             headerAlignment: pw.Alignment.center,
+//             cellAlignment: pw.Alignment.center,
+//             headers: [
+//               'Machine',
+//               'Latest Update',
+//               'Type',
+//               'Good Processed',
+//               'Unit Price',
+//               'Total Price',
+//             ],
+//             data: costList
+//                 .map(
+//                   (e) => [
+//                     "${e.machine_id}",
+//                     (DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+//                         .parse(e.updatedAt!)
+//                         .toLocal()
+//                         .toString()
+//                         .split(' ')[0]),
+//                     "${e.tipe}",
+//                     "${e.good}",
+//                     "${e.harga_unit}",
+//                     "${e.total_harga}"
+//                   ],
+//                 )
+//                 .toList(),
+//           ),
+//         ];
+//       },
+//     ),
+//   ); // Page
+//   // SIMPAN
+//   Uint8List bytes = await pdf.save();
 
-  // buat file kosong di directory
-  final dir = await getApplicationDocumentsDirectory();
-  final file = File('${dir.path}/Cost Price Report.pdf');
+//   // buat file kosong di directory
+//   final dir = await getApplicationDocumentsDirectory();
+//   final file = File('${dir.path}/Cost Price Report.pdf');
 
-  // timpa file kosong dengan file pdf
-  await file.writeAsBytes(bytes);
+//   // timpa file kosong dengan file pdf
+//   await file.writeAsBytes(bytes);
 
-  //open pdf
-  await OpenFile.open(file.path);
-}
+//   //open pdf
+//   await OpenFile.open(file.path);
+// }

@@ -3,8 +3,9 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:dropdown_search/dropdown_search.dart';
+// import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:project_tugas_akhir_copy/newdata/dashboard_app_theme.dart';
 import 'package:project_tugas_akhir_copy/services/quality_service.dart';
 import 'package:project_tugas_akhir_copy/services/stock_service.dart';
 import 'package:project_tugas_akhir_copy/back_button_pop.dart';
@@ -36,14 +37,14 @@ class _M1stockState extends State<M1stock> {
 
   //KONTROLER REALTIME DATA (STREAMBUILDER)
   StreamController<List> streamStock = StreamController.broadcast();
-  late Timer timer;
   List<StockModel> stockList = [];
   ReadStock getstockM1 = ReadStock();
   Future<void> stockData() async {
-    stockList = await getstockM1.getStock(1);
+    stockList = await ReadStock.getStock(1);
     streamStock.add(stockList);
   }
 
+  late Timer timer;
   //RIWAYAT STOCK IN
   StreamController<List> streamRiwayatStock = StreamController.broadcast();
   List<Historimodel> riwayatStockList = [];
@@ -67,11 +68,11 @@ class _M1stockState extends State<M1stock> {
   bool stateA = true;
   bool stateB = false;
   bool stateC = false;
-  final List<String> tipeBenda = <String>[
-    "A",
-    "B",
-    "C",
-  ];
+  // final List<String> tipeBenda = <String>[
+  //   "A",
+  //   "B",
+  //   "C",
+  // ];
   late String? tipeValue;
 
   @override
@@ -107,8 +108,12 @@ class _M1stockState extends State<M1stock> {
       home: Scaffold(
         appBar: AppBar(
           title: Text(
-            "Machine 1 Stock",
-            style: TextStyle(fontSize: blockVertical * 2.5),
+            "Stock Machine",
+            style: TextStyle(
+                fontFamily: DashboardAppTheme.fontName,
+                fontSize: blockVertical * 3,
+                fontWeight: FontWeight.bold,
+                color: DashboardAppTheme.white),
           ),
           centerTitle: true,
           backgroundColor: Color.fromARGB(255, 6, 160, 207),
@@ -189,22 +194,10 @@ class _M1stockState extends State<M1stock> {
                                   children: [
                                     Stock(
                                         constraints,
-                                        Color.fromARGB(255, 255, 77, 7),
-                                        "${e.A}",
-                                        FontAwesomeIcons.a,
-                                        e.A!),
-                                    Stock(
-                                        constraints,
-                                        Color.fromARGB(255, 253, 173, 0),
-                                        "${e.B}",
-                                        FontAwesomeIcons.b,
-                                        e.B!),
-                                    Stock(
-                                        constraints,
-                                        Color.fromARGB(255, 7, 32, 255),
-                                        "${e.C}",
-                                        FontAwesomeIcons.c,
-                                        e.C!),
+                                        Color.fromARGB(255, 0, 152, 253),
+                                        "${e.stock}",
+                                        FontAwesomeIcons.box,
+                                        e.stock!),
                                   ],
                                 );
                               }).toList(),
@@ -373,115 +366,7 @@ class _M1stockState extends State<M1stock> {
                         fontWeight: FontWeight.bold),
                   ),
                 ),
-                //PILIH RIWAYAT BAHAN-------------------------------------------------------------------------------------------------
-                Container(
-                  height: blockVertical * 9,
-                  width: MediaQuerywidth,
-                  color: Colors.transparent,
-                  child: LayoutBuilder(builder: (context, constraints) {
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        //KOTAK A--------------------------------------------------------------------------
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              stateA = true;
-                              stateB = false;
-                              stateC = false;
-                            });
-                          },
-                          child: Container(
-                              padding: EdgeInsets.all(8),
-                              height: constraints.maxHeight * 0.8,
-                              width: constraints.maxWidth * 0.3,
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 255, 77, 7),
-                                borderRadius: BorderRadius.circular(10),
-                                border: (stateA)
-                                    ? Border.all(
-                                        color:
-                                            Color.fromARGB(255, 255, 255, 255),
-                                        width: 3)
-                                    : Border.all(
-                                        color: Color.fromARGB(255, 255, 77, 7),
-                                      ),
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  FontAwesomeIcons.a,
-                                  color: Colors.white,
-                                ),
-                              )),
-                        ),
-                        //KOTAK B--------------------------------------------------------------------------
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              stateA = false;
-                              stateB = true;
-                              stateC = false;
-                            });
-                          },
-                          child: Container(
-                              padding: EdgeInsets.all(8),
-                              height: constraints.maxHeight * 0.8,
-                              width: constraints.maxWidth * 0.3,
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 253, 173, 0),
-                                borderRadius: BorderRadius.circular(10),
-                                border: (stateB)
-                                    ? Border.all(
-                                        color:
-                                            Color.fromARGB(255, 255, 255, 255),
-                                        width: 3)
-                                    : Border.all(
-                                        color: Color.fromARGB(255, 253, 173, 0),
-                                      ),
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  FontAwesomeIcons.b,
-                                  color: Colors.white,
-                                ),
-                              )),
-                        ),
-                        //KOTAK C--------------------------------------------------------------------------
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              stateA = false;
-                              stateB = false;
-                              stateC = true;
-                            });
-                          },
-                          child: Container(
-                              padding: EdgeInsets.all(8),
-                              height: constraints.maxHeight * 0.8,
-                              width: constraints.maxWidth * 0.3,
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 7, 32, 255),
-                                borderRadius: BorderRadius.circular(10),
-                                border: (stateC)
-                                    ? Border.all(
-                                        color:
-                                            Color.fromARGB(255, 255, 255, 255),
-                                        width: 3)
-                                    : Border.all(
-                                        color: Color.fromARGB(255, 7, 32, 255),
-                                      ),
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  FontAwesomeIcons.c,
-                                  color: Colors.white,
-                                ),
-                              )),
-                        ),
-                      ],
-                    );
-                  }),
-                ),
+
                 //LIST RIWAYAT BAHAN------------------------------------------------------------------------------------------------------
                 Container(
                   padding: EdgeInsets.only(bottom: blockVertical * 4.5),
@@ -499,69 +384,68 @@ class _M1stockState extends State<M1stock> {
                                 return Column(
                                   children: riwayatStockList.map(
                                     (e) {
-                                      if (stateC) {
-                                        if (e.tipe == "C") {
-                                          return Column(
-                                            children: [
-                                              listHistory(
-                                                  context,
-                                                  DateFormat(
-                                                          "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                                                      .parse(e.createdAt!)
-                                                      .toLocal()
-                                                      .toString()
-                                                      .split(' ')[0],
-                                                  e.jumlah!,
-                                                  Color.fromARGB(
-                                                      255, 23, 42, 211),
-                                                  Colors.green,
-                                                  FontAwesomeIcons.c),
-                                            ],
-                                          );
-                                        }
-                                      } else if (stateB) {
-                                        if (e.tipe == "B") {
-                                          return Column(
-                                            children: [
-                                              listHistory(
-                                                  context,
-                                                  DateFormat(
-                                                          "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                                                      .parse(e.createdAt!)
-                                                      .toLocal()
-                                                      .toString()
-                                                      .split(' ')[0],
-                                                  e.jumlah!,
-                                                  Color.fromARGB(
-                                                      255, 253, 216, 5),
-                                                  Colors.green,
-                                                  FontAwesomeIcons.b),
-                                            ],
-                                          );
-                                        }
-                                      } else if (stateA) {
-                                        if (e.tipe == "A") {
-                                          return Column(
-                                            children: [
-                                              listHistory(
-                                                  context,
-                                                  DateFormat(
-                                                          "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                                                      .parse(e.createdAt!)
-                                                      .toLocal()
-                                                      .toString()
-                                                      .split(' ')[0],
-                                                  e.jumlah!,
-                                                  Color.fromARGB(
-                                                      255, 241, 100, 6),
-                                                  Color.fromARGB(
-                                                      255, 226, 125, 42),
-                                                  FontAwesomeIcons.a),
-                                            ],
-                                          );
-                                        }
-                                      }
-                                      return Column();
+                                      // if (stateC) {
+                                      //   if (e.tipe == "C") {
+                                      return Column(
+                                        children: [
+                                          listHistory(
+                                              context,
+                                              DateFormat(
+                                                      "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                                                  .parse(e.createdAt!)
+                                                  .toLocal()
+                                                  .toString()
+                                                  .split(' ')[0],
+                                              e.jumlah!,
+                                              Color.fromARGB(255, 180, 211, 23),
+                                              Colors.green,
+                                              FontAwesomeIcons.plus),
+                                        ],
+                                      );
+                                      //   }
+                                      // } else if (stateB) {
+                                      //   if (e.tipe == "B") {
+                                      //     return Column(
+                                      //       children: [
+                                      //         listHistory(
+                                      //             context,
+                                      //             DateFormat(
+                                      //                     "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                                      //                 .parse(e.createdAt!)
+                                      //                 .toLocal()
+                                      //                 .toString()
+                                      //                 .split(' ')[0],
+                                      //             e.jumlah!,
+                                      //             Color.fromARGB(
+                                      //                 255, 253, 216, 5),
+                                      //             Colors.green,
+                                      //             FontAwesomeIcons.b),
+                                      //       ],
+                                      //     );
+                                      //   }
+                                      // } else if (stateA) {
+                                      //   if (e.tipe == "A") {
+                                      //     return Column(
+                                      //       children: [
+                                      //         listHistory(
+                                      //             context,
+                                      //             DateFormat(
+                                      //                     "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                                      //                 .parse(e.createdAt!)
+                                      //                 .toLocal()
+                                      //                 .toString()
+                                      //                 .split(' ')[0],
+                                      //             e.jumlah!,
+                                      //             Color.fromARGB(
+                                      //                 255, 241, 100, 6),
+                                      //             Color.fromARGB(
+                                      //                 255, 226, 125, 42),
+                                      //             FontAwesomeIcons.a),
+                                      //       ],
+                                      //     );
+                                      //   }
+                                      // }
+                                      // return Column();
                                     },
                                   ).toList(),
                                 );
@@ -577,69 +461,68 @@ class _M1stockState extends State<M1stock> {
                                 return Column(
                                   children: stockProcessed.map(
                                     (e) {
-                                      if (stateC) {
-                                        if (e.tipe == "C" && e.processed != 0) {
-                                          return Column(
-                                            children: [
-                                              processHistory(
-                                                  context,
-                                                  DateFormat(
-                                                          "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                                                      .parse(e.createdAt!)
-                                                      .toLocal()
-                                                      .toString()
-                                                      .split(' ')[0],
-                                                  e.processed!,
-                                                  Color.fromARGB(
-                                                      255, 23, 42, 211),
-                                                  Colors.green,
-                                                  FontAwesomeIcons.c),
-                                            ],
-                                          );
-                                        }
-                                      } else if (stateB) {
-                                        if (e.tipe == "B" && e.processed != 0) {
-                                          return Column(
-                                            children: [
-                                              processHistory(
-                                                  context,
-                                                  DateFormat(
-                                                          "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                                                      .parse(e.createdAt!)
-                                                      .toLocal()
-                                                      .toString()
-                                                      .split(' ')[0],
-                                                  e.processed!,
-                                                  Color.fromARGB(
-                                                      255, 253, 216, 5),
-                                                  Colors.green,
-                                                  FontAwesomeIcons.b),
-                                            ],
-                                          );
-                                        }
-                                      } else if (stateA) {
-                                        if (e.tipe == "A" && e.processed != 0) {
-                                          return Column(
-                                            children: [
-                                              processHistory(
-                                                  context,
-                                                  DateFormat(
-                                                          "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                                                      .parse(e.createdAt!)
-                                                      .toLocal()
-                                                      .toString()
-                                                      .split(' ')[0],
-                                                  e.processed!,
-                                                  Color.fromARGB(
-                                                      255, 241, 100, 6),
-                                                  Color.fromARGB(
-                                                      255, 226, 125, 42),
-                                                  FontAwesomeIcons.a),
-                                            ],
-                                          );
-                                        }
-                                      }
-                                      return Column();
+                                      // if (stateC) {
+                                      //   if (e.tipe == "C" && e.processed != 0) {
+                                      return Column(
+                                        children: [
+                                          processHistory(
+                                              context,
+                                              DateFormat(
+                                                      "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                                                  .parse(e.createdAt!)
+                                                  .toLocal()
+                                                  .toString()
+                                                  .split(' ')[0],
+                                              e.processed!.toInt(),
+                                              Color.fromARGB(255, 211, 23, 23),
+                                              Colors.green,
+                                              FontAwesomeIcons.minus),
+                                        ],
+                                      );
+                                      //   }
+                                      // } else if (stateB) {
+                                      //   if (e.tipe == "B" && e.processed != 0) {
+                                      //     return Column(
+                                      //       children: [
+                                      //         processHistory(
+                                      //             context,
+                                      //             DateFormat(
+                                      //                     "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                                      //                 .parse(e.createdAt!)
+                                      //                 .toLocal()
+                                      //                 .toString()
+                                      //                 .split(' ')[0],
+                                      //             e.processed!,
+                                      //             Color.fromARGB(
+                                      //                 255, 253, 216, 5),
+                                      //             Colors.green,
+                                      //             FontAwesomeIcons.b),
+                                      //       ],
+                                      //     );
+                                      //   }
+                                      // } else if (stateA) {
+                                      //   if (e.tipe == "A" && e.processed != 0) {
+                                      //     return Column(
+                                      //       children: [
+                                      //         processHistory(
+                                      //             context,
+                                      //             DateFormat(
+                                      //                     "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                                      //                 .parse(e.createdAt!)
+                                      //                 .toLocal()
+                                      //                 .toString()
+                                      //                 .split(' ')[0],
+                                      //             e.processed!,
+                                      //             Color.fromARGB(
+                                      //                 255, 241, 100, 6),
+                                      //             Color.fromARGB(
+                                      //                 255, 226, 125, 42),
+                                      //             FontAwesomeIcons.a),
+                                      //       ],
+                                      //     );
+                                      //   }
+                                      // }
+                                      // return Column();
                                     },
                                   ).toList(),
                                 );
@@ -741,7 +624,7 @@ class _M1stockState extends State<M1stock> {
     return Container(
       padding: EdgeInsets.all(8),
       height: constraints.maxHeight * 0.9,
-      width: constraints.maxWidth * 0.3,
+      width: constraints.maxWidth * 1,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(10),
@@ -763,17 +646,22 @@ class _M1stockState extends State<M1stock> {
           Divider(
             thickness: constraints.maxHeight * 0.01,
           ),
-          Text("Amount : ",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: constraints.maxHeight * 0.15,
-                  fontWeight: FontWeight.bold)),
-          Text(
-            "$unit unit",
-            style: TextStyle(
-                color: (value > 5) ? Colors.white : Colors.red,
-                fontSize: constraints.maxHeight * 0.15,
-                fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Amount : ",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: constraints.maxHeight * 0.3,
+                      fontWeight: FontWeight.bold)),
+              Text(
+                "$unit unit",
+                style: TextStyle(
+                    color: (value > 5) ? Colors.white : Colors.red,
+                    fontSize: constraints.maxHeight * 0.3,
+                    fontWeight: FontWeight.bold),
+              ),
+            ],
           )
         ],
       ),
@@ -804,29 +692,29 @@ class _M1stockState extends State<M1stock> {
                           SizedBox(
                             height: 10,
                           ),
-                          DropdownSearch<String>(
-                            clearButtonProps: ClearButtonProps(
-                              isVisible: true,
-                            ),
-                            popupProps: PopupProps.menu(
-                              constraints: BoxConstraints(maxHeight: 170),
-                              showSelectedItems: true,
-                            ),
-                            items: tipeBenda,
-                            dropdownDecoratorProps: DropDownDecoratorProps(
-                              dropdownSearchDecoration: InputDecoration(
-                                border: InputBorder.none,
-                                labelText: "Choose Object Type",
-                                hintText: "Object Type",
-                              ),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                tipeValue = value;
-                                print(tipeValue);
-                              });
-                            },
-                          ),
+                          // DropdownSearch<String>(
+                          //   clearButtonProps: ClearButtonProps(
+                          //     isVisible: true,
+                          //   ),
+                          //   popupProps: PopupProps.menu(
+                          //     constraints: BoxConstraints(maxHeight: 170),
+                          //     showSelectedItems: true,
+                          //   ),
+                          //   items: tipeBenda,
+                          //   dropdownDecoratorProps: DropDownDecoratorProps(
+                          //     dropdownSearchDecoration: InputDecoration(
+                          //       border: InputBorder.none,
+                          //       labelText: "Choose Object Type",
+                          //       hintText: "Object Type",
+                          //     ),
+                          //   ),
+                          //   onChanged: (value) {
+                          //     setState(() {
+                          //       tipeValue = value;
+                          //       print(tipeValue);
+                          //     });
+                          //   },
+                          // ),
                           TextField(
                             controller: jumlah,
                             keyboardType: TextInputType.number,
@@ -840,28 +728,28 @@ class _M1stockState extends State<M1stock> {
                       btnOkOnPress: () {
                         //addStockM1 untuk menambah jumlah
                         //riwayatStock untuk menambah riwayat
-                        if (tipeValue == "A") {
-                          AddStock.putStock(int.parse(jumlah.text), 0, 0, 1);
-                          AddriwayatStock.connectAPIPost(
-                            1,
-                            tipeValue.toString(),
-                            int.parse(jumlah.text),
-                          );
-                        } else if (tipeValue == "B") {
-                          AddStock.putStock(0, int.parse(jumlah.text), 0, 1);
-                          AddriwayatStock.connectAPIPost(
-                            1,
-                            tipeValue.toString(),
-                            int.parse(jumlah.text),
-                          );
-                        } else if (tipeValue == "C") {
-                          AddStock.putStock(0, 0, int.parse(jumlah.text), 1);
-                          AddriwayatStock.connectAPIPost(
-                            1,
-                            tipeValue.toString(),
-                            int.parse(jumlah.text),
-                          );
-                        }
+                        // if (tipeValue == "A") {
+                        AddStock.putStock(int.parse(jumlah.text), 1);
+                        AddriwayatStock.connectAPIPost(
+                          1,
+                          // tipeValue.toString(),
+                          int.parse(jumlah.text),
+                        );
+                        // } else if (tipeValue == "B") {
+                        //   AddStock.putStock(0, int.parse(jumlah.text), 0, 1);
+                        //   AddriwayatStock.connectAPIPost(
+                        //     1,
+                        //     tipeValue.toString(),
+                        //     int.parse(jumlah.text),
+                        //   );
+                        // } else if (tipeValue == "C") {
+                        //   AddStock.putStock(0, 0, int.parse(jumlah.text), 1);
+                        //   AddriwayatStock.connectAPIPost(
+                        //     1,
+                        //     tipeValue.toString(),
+                        //     int.parse(jumlah.text),
+                        //   );
+                        // }
                       },
                       btnCancelIcon: FontAwesomeIcons.ban,
                       btnCancelOnPress: () {})

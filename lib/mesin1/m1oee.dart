@@ -2,19 +2,24 @@
 
 import 'dart:async';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+// import 'package:project_tugas_akhir_copy/additional/report_pdf.dart';
 import 'package:project_tugas_akhir_copy/services/availability_service.dart';
 import 'package:project_tugas_akhir_copy/services/oee_service.dart';
-import 'package:project_tugas_akhir_copy/services/param_service.dart';
+// import 'package:project_tugas_akhir_copy/services/param_service.dart';
 import 'package:project_tugas_akhir_copy/services/performance_service.dart';
 import 'package:project_tugas_akhir_copy/services/quality_service.dart';
 import 'package:project_tugas_akhir_copy/back_button_pop.dart';
 import 'package:project_tugas_akhir_copy/models/availability_model.dart';
 import 'package:project_tugas_akhir_copy/models/oee_model.dart';
-import 'package:project_tugas_akhir_copy/models/param_model.dart';
+// import 'package:project_tugas_akhir_copy/models/param_model.dart';
 import 'package:project_tugas_akhir_copy/models/performance_model.dart';
 import 'package:project_tugas_akhir_copy/models/quality_model.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
 class M1oee extends StatefulWidget {
@@ -28,41 +33,64 @@ class M1oee extends StatefulWidget {
 class _M1oeeState extends State<M1oee> {
   late Timer timer;
   String? tipe;
-
-  // PARAMETER
-  StreamController<List> streamParam = StreamController.broadcast();
-  List<ParamModel> paramList = [];
-  ReadLatestParamM1 getLatestParamM1 = ReadLatestParamM1();
-  Future<void> latestParam() async {
-    paramList = await getLatestParamM1.getParamM1();
-    streamParam.add(paramList);
+  String? name, otoritas;
+  Future<void> getValidUser() async {
+    final SharedPreferences shared = await SharedPreferences.getInstance();
+    var getName = shared.getString("name");
+    var getOtoritas = shared.getString("otoritas");
+    setState(() {
+      name = getName!;
+      otoritas = getOtoritas!;
+    });
   }
 
+  TextEditingController jumlah = TextEditingController();
+
+  // // PARAMETER
+  // StreamController<List> streamParam = StreamController.broadcast();
+  // List<ParamModel> paramList = [];
+  // ReadLatestParamM1 getLatestParamM1 = ReadLatestParamM1();
+  // Future<void> latestParam() async {
+  //   paramList = await getLatestParamM1.getParamM1();
+  //   streamParam.add(paramList);
+  // }
+
   //QUALITY
-  StreamController<List> streamQuality = StreamController.broadcast();
-  List<CurrentQuality> qList = [];
-  GetQuality quality = GetQuality();
+  StreamController<List<DashQuality>> streamProd = StreamController.broadcast();
+  List<DashQuality> qList = [];
+  QualityDash quality = QualityDash();
   Future<void> qualityData() async {
-    qList = await quality.getQualityM(1, "$tipe");
-    streamQuality.add(qList);
+    qList = await QualityDash.dashQualityM();
+    streamProd.add(qList);
   }
 
   //AVAILABILITY
-  StreamController<List> streamAvailability = StreamController.broadcast();
+  StreamController<List<AvaiModelM>> streamTime = StreamController.broadcast();
   List<AvaiModelM> aList = [];
   GetAvailability availability = GetAvailability();
   Future<void> avaidata() async {
-    aList = await availability.availabilityM(1);
-    streamAvailability.add(aList);
+    try {
+      aList = await GetAvailability.availabilityM();
+      if (aList.isEmpty) {
+        print("AvaiModelM data is empty");
+      } else {
+        print("AvaiModelM data fetched successfully: ${aList.length} items");
+      }
+      streamTime.add(aList);
+    } catch (e) {
+      print("Error fetching AvaiModelM data: $e");
+      streamTime.addError(e);
+    }
   }
 
-  //PERFORMANCE
-  StreamController<List> streamPerformance = StreamController.broadcast();
+//PERFORMANCE
+  StreamController<List<GetPerformanceModel>> streamPerform =
+      StreamController.broadcast();
   List<GetPerformanceModel> pList = [];
   GetPerformance performance = GetPerformance();
-  Future<void> Perdata() async {
-    pList = await performance.getPerform(1);
-    streamPerformance.add(pList);
+  Future<void> performData() async {
+    pList = await GetPerformance.getPerform();
+    streamPerform.add(pList);
   }
 
   //OEE
@@ -74,21 +102,16 @@ class _M1oeeState extends State<M1oee> {
     streamOEE.add(OEEList);
   }
 
+  // final List<GetOEEModel> oeeSlider = StreamBuilder<Object>(stream: streamOEE.stream, builder: builder)
   @override
   void initState() {
-    getLatestParamM1.getTipe().then((value) {
-      setState(() {
-        tipe = value!;
-      });
-    });
+    getValidUser();
     OEEdata();
-    latestParam();
-    Perdata();
+    performData();
     avaidata();
     qualityData();
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      latestParam();
-      Perdata();
+      performData();
       avaidata();
       qualityData();
       OEEdata();
@@ -111,714 +134,656 @@ class _M1oeeState extends State<M1oee> {
     final MediaQueryheight = MediaQuery.of(context).size.height;
     double blockVertical = MediaQueryheight / 100;
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "Mesin 1 OEE",
-            style: TextStyle(fontSize: blockVertical * 2.5),
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          appBar: AppBar(
+            title: Text(
+              "Monitoring OEE",
+              style: TextStyle(
+                  fontSize: blockVertical * 3,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
+            centerTitle: true,
+            backgroundColor: Color.fromARGB(255, 6, 160, 207),
+            toolbarHeight: blockVertical * 8,
+            leading: backbutton(context),
           ),
-          centerTitle: true,
-          backgroundColor: Color.fromARGB(255, 6, 160, 207),
-          toolbarHeight: blockVertical * 8,
-          leading: backbutton(context),
-        ),
-        body: Container(
-          height: double.infinity,
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color.fromARGB(255, 29, 206, 215),
-                  Color.fromARGB(255, 19, 78, 227),
-                ]),
-          ),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: StreamBuilder(
-              stream: streamParam.stream,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return Column(
-                    children: paramList.map((param) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          SizedBox(height: blockVertical * 1),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: blockHorizontal * 2,
-                                vertical: blockVertical * 1),
-                            child: Container(
-                              height: blockVertical * 40,
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      offset: Offset(3, 5),
-                                      color: Colors.black.withOpacity(0.5),
-                                      blurRadius: 10,
-                                    )
-                                  ],
-                                  borderRadius:
-                                      BorderRadius.circular(blockVertical * 2)),
-                              child: (param.state == 1)
-                                  ? StreamBuilder(
-                                      stream: streamOEE.stream,
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData) {
-                                          return Column(
-                                            children: OEEList.map((e) {
-                                              dynamic oee = e.nilaioee! * 100;
-                                              dynamic quality =
-                                                  e.quality! * 100;
-                                              dynamic availability =
-                                                  e.availability! * 100;
-                                              dynamic performance =
-                                                  e.performance! * 100;
-                                              return Column(
-                                                children: [
-                                                  SizedBox(
-                                                      height:
-                                                          blockVertical * 0.5),
-                                                  Text(
-                                                    "Overall Equipment and Effectivenes",
-                                                    style: TextStyle(
-                                                        fontSize:
-                                                            blockVertical * 2.5,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                  Divider(
-                                                    thickness: 2,
-                                                  ),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.end,
-                                                    children: [
-                                                      Container(
-                                                        margin: EdgeInsets.only(
-                                                            right:
-                                                                blockHorizontal *
-                                                                    3),
-                                                        height:
-                                                            blockVertical * 5,
-                                                        width: blockHorizontal *
-                                                            30,
-                                                        decoration: BoxDecoration(
-                                                            color: ((e.nilaioee! * 100)
-                                                                        .toDouble() <=
-                                                                    param.oee_target!
-                                                                        .toDouble())
-                                                                ? Color.fromARGB(
-                                                                        255,
-                                                                        255,
-                                                                        17,
-                                                                        0)
-                                                                    .withOpacity(
-                                                                        0.8)
-                                                                : Color.fromARGB(
-                                                                        255, 0, 138, 5)
-                                                                    .withOpacity(
-                                                                        0.8),
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                    blockVertical * 1)),
-                                                        child: Center(
-                                                          child: Text(
-                                                            "Target : ${param.oee_target} %",
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize:
-                                                                    blockVertical *
-                                                                        2,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  circleOEE(
-                                                      blockHorizontal,
-                                                      blockVertical,
-                                                      (e.nilaioee <= 1.0)
-                                                          ? e.nilaioee
-                                                              .toDouble()
-                                                          : 1.0,
-                                                      oee.toStringAsFixed(2)),
-                                                  SizedBox(
-                                                    height: blockVertical * 2.5,
-                                                  ),
-                                                  rowOEE(
-                                                      blockHorizontal,
-                                                      blockVertical,
-                                                      "${availability.toStringAsFixed(2)}",
-                                                      "${performance.toStringAsFixed(2)}",
-                                                      "${quality.toStringAsFixed(2)}"),
-                                                ],
-                                              );
-                                            }).toList(),
-                                          );
-                                        } else if (snapshot.connectionState ==
-                                            ConnectionState.waiting) {
-                                          return Column(
-                                            children: [
-                                              SizedBox(
-                                                  height: blockVertical * 0.5),
-                                              Text(
-                                                "Overall Equipment and Effectivenes",
-                                                style: TextStyle(
-                                                    fontSize:
-                                                        blockVertical * 2.5,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                              Divider(
-                                                thickness: 2,
-                                              ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.end,
-                                                children: [
-                                                  Shimmer.fromColors(
-                                                    baseColor: Colors.grey,
-                                                    highlightColor:
-                                                        Colors.white,
-                                                    child: Container(
-                                                      margin: EdgeInsets.only(
-                                                          right:
-                                                              blockHorizontal *
-                                                                  3),
-                                                      height: blockVertical * 5,
-                                                      width:
-                                                          blockHorizontal * 30,
-                                                      decoration: BoxDecoration(
-                                                          color: Colors.grey,
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                  blockVertical *
-                                                                      1)),
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                              Shimmer.fromColors(
-                                                highlightColor: Colors.white,
-                                                baseColor: Colors.grey,
-                                                child: CircleAvatar(
-                                                  radius: blockVertical * 10,
-                                                  backgroundColor: Colors.grey,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: blockVertical * 2.5,
-                                              ),
-                                              ShimmerrowOEE(blockHorizontal,
-                                                  blockVertical)
-                                            ],
-                                          );
-                                        }
-                                        return Column(
-                                          children: [
-                                            SizedBox(
-                                                height: blockVertical * 0.5),
-                                            Text(
-                                              "Overall Equipment and Effectivenes",
-                                              style: TextStyle(
-                                                  fontSize: blockVertical * 2.5,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            Divider(
-                                              thickness: 2,
-                                            ),
-                                            circleOEE(blockHorizontal,
-                                                blockVertical, 0.0, "0"),
-                                            SizedBox(
-                                              height: blockVertical * 2.5,
-                                            ),
-                                            rowOEE(blockHorizontal,
-                                                blockVertical, "0", "0", "0"),
-                                          ],
-                                        );
-                                      })
-                                  : Column(
-                                      children: [
-                                        SizedBox(height: blockVertical * 0.5),
-                                        Text(
-                                          "Overall Equipment and Effectivenes",
-                                          style: TextStyle(
-                                              fontSize: blockVertical * 2.5,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        Divider(
-                                          thickness: 2,
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            Container(
-                                              margin: EdgeInsets.only(
-                                                  right: blockHorizontal * 3),
-                                              height: blockVertical * 5,
-                                              width: blockHorizontal * 30,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.grey,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          blockVertical * 1)),
-                                            )
-                                          ],
-                                        ),
-                                        circleOEE(blockHorizontal,
-                                            blockVertical, 0.0, "0"),
-                                        SizedBox(
-                                          height: blockVertical * 2.5,
-                                        ),
-                                        rowOEE(blockHorizontal, blockVertical,
-                                            "0", "0", "0"),
-                                      ],
-                                    ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(
-                                left: blockHorizontal * 2,
-                                right: blockHorizontal * 2,
-                                top: blockVertical * 0.5,
-                                bottom: blockVertical * 1.5),
-                            child: Container(
-                              height: blockVertical * 87,
-                              width: MediaQuerywidth,
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius:
-                                      BorderRadius.circular(blockVertical * 2),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      offset: Offset(3, 5),
-                                      color: Colors.black.withOpacity(0.5),
-                                      blurRadius: 10,
-                                    )
-                                  ]),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
+          body: Container(
+            height: double.infinity,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color.fromARGB(255, 29, 206, 215),
+                    Color.fromARGB(255, 19, 78, 227),
+                  ]),
+            ),
+            child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    SizedBox(height: blockVertical * 1),
+                    StreamBuilder(
+                      stream: streamOEE.stream,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Column(
+                            children: [
+                              SizedBox(height: blockVertical * 0.5),
+                              Text(
+                                "Overall Equipment and Effectivenes",
+                                style: TextStyle(
+                                    fontSize: blockVertical * 2.5,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Divider(
+                                thickness: 2,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  SizedBox(
-                                    height: blockVertical * 1,
-                                  ),
-                                  Text(
-                                    "Availability",
-                                    style: TextStyle(
-                                        fontSize: blockVertical * 2.5,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Divider(thickness: 2),
-                                  SizedBox(
-                                    height: blockVertical * 1,
-                                  ),
-                                  (param.state == 1)
-                                      ? StreamBuilder(
-                                          stream: streamAvailability.stream,
-                                          builder: (context, snapshot) {
-                                            if (snapshot.hasData) {
-                                              return Column(
-                                                children: aList.map((e) {
-                                                  dynamic Arate =
-                                                      (e.availabilityrate! *
-                                                          100);
-                                                  return Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceEvenly,
-                                                    children: [
-                                                      percentOEE(
-                                                          blockHorizontal,
-                                                          blockVertical,
-                                                          Color.fromARGB(
-                                                              255, 0, 217, 255),
-                                                          Color.fromARGB(255,
-                                                              76, 175, 170),
-                                                          e.availabilityrate
-                                                              .toDouble(),
-                                                          (Arate)
-                                                              .toStringAsFixed(
-                                                                  2)),
-                                                      NilaiOEE(
-                                                          blockHorizontal,
-                                                          blockVertical,
-                                                          "Running Time",
-                                                          "${(e.runningtime! / 60).toStringAsFixed(2)} Minute",
-                                                          "Operation Time",
-                                                          "${(e.operationtime! / 60).toStringAsFixed(2)} Minute",
-                                                          "Downtime",
-                                                          "${(e.downtime! / 60).toStringAsFixed(2)} Minute")
-                                                    ],
-                                                  );
-                                                }).toList(),
-                                              );
-                                            } else if (snapshot
-                                                    .connectionState ==
-                                                ConnectionState.waiting) {
-                                              return Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: [
-                                                  CircleBody(blockHorizontal,
-                                                      blockVertical),
-                                                  ShimmerBody(blockHorizontal,
-                                                      blockVertical),
-                                                ],
-                                              );
-                                            }
-                                            return Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                percentOEE(
-                                                    blockHorizontal,
-                                                    blockVertical,
-                                                    Color.fromARGB(
-                                                        255, 0, 217, 255),
-                                                    Color.fromARGB(
-                                                        255, 76, 175, 170),
-                                                    0.0,
-                                                    "0"),
-                                                NilaiOEE(
-                                                    blockHorizontal,
-                                                    blockVertical,
-                                                    "Running Time",
-                                                    "0 Minute",
-                                                    "Operation Time",
-                                                    "0 Minute",
-                                                    "Downtime",
-                                                    "0 Minute")
-                                              ],
-                                            );
-                                          })
-                                      : Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            percentOEE(
-                                                blockHorizontal,
-                                                blockVertical,
-                                                Color.fromARGB(
-                                                    255, 0, 217, 255),
-                                                Color.fromARGB(
-                                                    255, 76, 175, 170),
-                                                0.0,
-                                                "0"),
-                                            NilaiOEE(
-                                                blockHorizontal,
-                                                blockVertical,
-                                                "Running Time",
-                                                "0 Minute",
-                                                "Operation Time",
-                                                "0 Minute",
-                                                "Downtime",
-                                                "0 Minute")
-                                          ],
-                                        ),
-                                  SizedBox(
-                                    height: blockVertical * 1,
-                                  ),
-                                  Divider(thickness: 2),
-                                  Text(
-                                    "Performance",
-                                    style: TextStyle(
-                                        fontSize: blockVertical * 2.5,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Divider(
-                                    thickness: 2,
-                                  ),
-                                  SizedBox(
-                                    height: blockVertical * 1,
-                                  ),
-                                  (param.state == 1)
-                                      ? StreamBuilder(
-                                          stream: streamPerformance.stream,
-                                          builder: (context, snapshot) {
-                                            if (snapshot.hasData) {
-                                              return Column(
-                                                  children: pList.map((e) {
-                                                dynamic Prate =
-                                                    (e.performancerate! * 100);
-                                                return Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceEvenly,
-                                                  children: [
-                                                    percentOEE(
-                                                        blockHorizontal,
-                                                        blockVertical,
-                                                        Color.fromARGB(
-                                                            255, 255, 0, 0),
-                                                        Color.fromARGB(
-                                                            255, 175, 76, 76),
-                                                        (e.state == 1)
-                                                            ? (e.performancerate
-                                                                        .toDouble() <=
-                                                                    1.0)
-                                                                ? e.performancerate
-                                                                    .toDouble()
-                                                                : 1.0
-                                                            : 0.0,
-                                                        (e.state == 1)
-                                                            ? Prate
-                                                                .toStringAsFixed(
-                                                                    2)
-                                                            : "0"),
-                                                    NilaiOEE(
-                                                        blockHorizontal,
-                                                        blockVertical,
-                                                        "Cycle Time",
-                                                        (e.state == 1)
-                                                            ? "${e.cycle_time} Minute"
-                                                            : "- Minute",
-                                                        "Processed Unit",
-                                                        (e.state == 1)
-                                                            ? "${e.processed} Unit"
-                                                            : "- Minute",
-                                                        "Operation Time",
-                                                        (e.state == 1)
-                                                            ? "${(e.operationtime! / 60).toStringAsFixed(2)} Minute"
-                                                            : "- Minute")
-                                                  ],
-                                                );
-                                              }).toList());
-                                            } else if (snapshot
-                                                    .connectionState ==
-                                                ConnectionState.waiting) {
-                                              return Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: [
-                                                  CircleBody(blockHorizontal,
-                                                      blockVertical),
-                                                  ShimmerBody(blockHorizontal,
-                                                      blockVertical),
-                                                ],
-                                              );
-                                            }
-                                            return Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                percentOEE(
-                                                    blockHorizontal,
-                                                    blockVertical,
-                                                    Color.fromARGB(
-                                                        255, 255, 0, 0),
-                                                    Color.fromARGB(
-                                                        255, 175, 76, 76),
-                                                    0.0,
-                                                    "0"),
-                                                NilaiOEE(
-                                                    blockHorizontal,
-                                                    blockVertical,
-                                                    "Cycle Time",
-                                                    "0 Minute",
-                                                    "Good Processed",
-                                                    "0 Unit",
-                                                    "Operation Time",
-                                                    "0 Minute")
-                                              ],
-                                            );
-                                          })
-                                      : Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            percentOEE(
-                                                blockHorizontal,
-                                                blockVertical,
-                                                Color.fromARGB(255, 255, 0, 0),
-                                                Color.fromARGB(
-                                                    255, 175, 76, 76),
-                                                0.0,
-                                                "0"),
-                                            NilaiOEE(
-                                                blockHorizontal,
-                                                blockVertical,
-                                                "Cycle Time",
-                                                "0 Minute",
-                                                "Good Processed",
-                                                "0 Unit",
-                                                "Operation Time",
-                                                "0 Minute")
-                                          ],
-                                        ),
-                                  SizedBox(
-                                    height: blockVertical * 1,
-                                  ),
-                                  Divider(thickness: 2),
-                                  Text(
-                                    "Quality",
-                                    style: TextStyle(
-                                        fontSize: blockVertical * 2.5,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Divider(
-                                    thickness: 2,
-                                  ),
-                                  SizedBox(
-                                    height: blockVertical * 1,
-                                  ),
-                                  (param.state == 1)
-                                      ? StreamBuilder(
-                                          stream: streamQuality.stream,
-                                          builder: (context, snapshot) {
-                                            if (snapshot.hasData) {
-                                              return Column(
-                                                children: qList.map((q) {
-                                                  dynamic Qrate =
-                                                      (q.qualityrate! * 100);
-                                                  return Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceEvenly,
-                                                    children: [
-                                                      percentOEE(
-                                                          blockHorizontal,
-                                                          blockVertical,
-                                                          Color.fromARGB(
-                                                              255, 251, 255, 0),
-                                                          Color.fromARGB(255,
-                                                              175, 173, 76),
-                                                          (q.state == 1)
-                                                              ? q.qualityrate
-                                                                  .toDouble()
-                                                              : 0.0,
-                                                          (q.state == 1)
-                                                              ? Qrate
-                                                                  .toStringAsFixed(
-                                                                      2)
-                                                              : "-"),
-                                                      NilaiOEE(
-                                                          blockHorizontal,
-                                                          blockVertical,
-                                                          "Processed Unit",
-                                                          (q.state == 1)
-                                                              ? "${q.processed} Unit"
-                                                              : "- Unit",
-                                                          "Good Processed",
-                                                          (q.state == 1)
-                                                              ? "${q.good} Unit"
-                                                              : "- Unit",
-                                                          "Defect",
-                                                          (q.state == 1)
-                                                              ? "${q.defect} Unit"
-                                                              : "- Unit")
-                                                    ],
-                                                  );
-                                                }).toList(),
-                                              );
-                                            } else if (snapshot
-                                                    .connectionState ==
-                                                ConnectionState.waiting) {
-                                              return Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: [
-                                                  CircleBody(blockHorizontal,
-                                                      blockVertical),
-                                                  ShimmerBody(blockHorizontal,
-                                                      blockVertical),
-                                                ],
-                                              );
-                                            }
-                                            return Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                percentOEE(
-                                                    blockHorizontal,
-                                                    blockVertical,
-                                                    Color.fromARGB(
-                                                        255, 251, 255, 0),
-                                                    Color.fromARGB(
-                                                        255, 175, 173, 76),
-                                                    0.0,
-                                                    "0"),
-                                                NilaiOEE(
-                                                    blockHorizontal,
-                                                    blockVertical,
-                                                    "Processed Unit",
-                                                    "0 Unit",
-                                                    "Good Processed",
-                                                    "0 Unit",
-                                                    "Defect",
-                                                    "0 Unit")
-                                              ],
-                                            );
-                                          })
-                                      : Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            percentOEE(
-                                                blockHorizontal,
-                                                blockVertical,
-                                                Color.fromARGB(
-                                                    255, 251, 255, 0),
-                                                Color.fromARGB(
-                                                    255, 175, 173, 76),
-                                                0.0,
-                                                "0"),
-                                            NilaiOEE(
-                                                blockHorizontal,
-                                                blockVertical,
-                                                "Processed Unit",
-                                                "0 Unit",
-                                                "Good Processed",
-                                                "0 Unit",
-                                                "Defect",
-                                                "0 Unit")
-                                          ],
-                                        ),
+                                  Shimmer.fromColors(
+                                    baseColor: Colors.grey,
+                                    highlightColor: Colors.white,
+                                    child: Container(
+                                      margin: EdgeInsets.only(
+                                          right: blockHorizontal * 3),
+                                      height: blockVertical * 5,
+                                      width: blockHorizontal * 30,
+                                      decoration: BoxDecoration(
+                                          color: Colors.grey,
+                                          borderRadius: BorderRadius.circular(
+                                              blockVertical * 1)),
+                                    ),
+                                  )
                                 ],
                               ),
+                              Shimmer.fromColors(
+                                highlightColor: Colors.white,
+                                baseColor: Colors.grey,
+                                child: CircleAvatar(
+                                  radius: blockVertical * 10,
+                                  backgroundColor: Colors.grey,
+                                ),
+                              ),
+                              SizedBox(
+                                height: blockVertical * 2.5,
+                              ),
+                              ShimmerrowOEE(blockHorizontal, blockVertical)
+                            ],
+                          );
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text("Error Bro: ${snapshot.error}"));
+                        } else if (snapshot.hasData) {
+                          List<dynamic> statusList = snapshot.data!;
+                          return Column(
+                            children: OEEList.map((e) {
+                              print('data: ${e}');
+                              dynamic oee = e.nilaioee! * 100;
+                              dynamic quality = e.quality! * 100;
+                              dynamic availability = e.availability! * 100;
+                              dynamic performance = e.performance! * 100;
+                              return CarouselSlider(
+                                options: CarouselOptions(
+                                  height: blockVertical * 40,
+                                  enlargeCenterPage: true,
+                                  autoPlay: false,
+                                ),
+                                items: [
+                                  percentOEE(
+                                      blockHorizontal,
+                                      blockVertical,
+                                      "Overall Equipment Effectiveness",
+                                      oee,
+                                      85,
+                                      Colors.lightBlue,
+                                      Colors.lightBlue,
+                                      (e.nilaioee <= 1.0)
+                                          ? e.nilaioee.toDouble()
+                                          : 1.0,
+                                      oee.toStringAsFixed(2)),
+                                  percentOEE(
+                                      blockHorizontal,
+                                      blockVertical,
+                                      "Availability",
+                                      availability,
+                                      90,
+                                      Colors.lightBlue,
+                                      Colors.lightBlue,
+                                      (e.availability <= 1.0)
+                                          ? e.availability.toDouble()
+                                          : 1.0,
+                                      availability.toStringAsFixed(2)),
+                                  percentOEE(
+                                      blockHorizontal,
+                                      blockVertical,
+                                      "Performance",
+                                      performance,
+                                      95,
+                                      Colors.lightBlue,
+                                      Colors.lightBlue,
+                                      (e.performance <= 1.0)
+                                          ? e.performance.toDouble()
+                                          : 1.0,
+                                      performance.toStringAsFixed(2)),
+                                  percentOEE(
+                                      blockHorizontal,
+                                      blockVertical,
+                                      "Quality",
+                                      quality,
+                                      99,
+                                      Colors.lightBlue,
+                                      Colors.lightBlue,
+                                      (e.quality <= 1.0)
+                                          ? e.quality.toDouble()
+                                          : 1.0,
+                                      quality.toStringAsFixed(2)),
+                                ],
+                              );
+                            }).toList(),
+                          );
+                        } else {
+                          return Center(child: Text("No data available"));
+                        }
+                      },
+                    ),
+                    Container(
+                      height: blockVertical * 85,
+                      width: MediaQuerywidth,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10)),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: blockVertical * 1.5,
+                          ),
+                          //Production
+                          Center(
+                            child: Text(
+                              "Production Monitoring System",
+                              style: TextStyle(
+                                  fontSize: blockVertical * 3,
+                                  fontWeight: FontWeight.bold),
                             ),
+                          ),
+                          SizedBox(
+                            height: blockVertical * 1,
+                          ),
+                          Divider(thickness: blockVertical * 1),
+                          Container(
+                            padding: EdgeInsets.only(
+                                left: blockHorizontal * 10,
+                                right: blockHorizontal * 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  height: blockVertical * 20,
+                                  width: blockHorizontal * 40,
+                                  padding: EdgeInsets.only(
+                                      right: blockHorizontal * 8),
+                                  child: Center(
+                                    child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "Availability",
+                                            style: TextStyle(
+                                                fontSize: blockVertical * 3,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Text(
+                                            "Time",
+                                            style: TextStyle(
+                                                fontSize: blockVertical * 3,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          // IconButton(
+                                          //     onPressed: () {},
+                                          //     icon: Icon(
+                                          //       Icons.info_outline_rounded,
+                                          //       size: blockVertical * 5,
+                                          //       color: Color.fromARGB(
+                                          //           255, 143, 141, 141),
+                                          //     ))
+                                        ]),
+                                  ),
+                                ),
+                                StreamBuilder<List<AvaiModelM>>(
+                                  stream: streamTime.stream,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return ShimmerBody(
+                                          blockHorizontal, blockVertical);
+                                    } else if (snapshot.hasError) {
+                                      return Center(
+                                          child: Text(
+                                              "Error Bro: ${snapshot.error}"));
+                                    } else if (snapshot.hasData) {
+                                      List<AvaiModelM> aList = snapshot.data!;
+                                      return Column(
+                                        children: aList.map((e) {
+                                          print('data: ${e}');
+                                          return NilaiProduction(
+                                              blockHorizontal,
+                                              blockVertical,
+                                              "Downtime",
+                                              // (e.state == 1)
+                                              // ?
+                                              "${((e.setup / 60) + (e.breakdown / 60)).toStringAsFixed(2)} Minutes",
+                                              // : "- Unit",
+                                              "Uptime",
+                                              // (e.state == 1)
+                                              //     ?
+                                              "${(e.operation / 60).toStringAsFixed(2)} Minutes",
+                                              // : "- Unit",
+                                              "Overall time",
+                                              // (e.state == 1)
+                                              "10 Minutes");
+                                          // : "- Unit");
+                                        }).toList(),
+                                      );
+                                    } else {
+                                      return Center(
+                                          child: Text("No data available"));
+                                    }
+                                  },
+                                )
+                              ],
+                            ),
+                          ),
+                          Divider(
+                            thickness: blockVertical * 1,
+                          ),
+
+                          Container(
+                            padding: EdgeInsets.only(
+                                right: blockHorizontal * 10,
+                                left: blockHorizontal * 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  height: blockVertical * 20,
+                                  width: blockHorizontal * 40,
+                                  padding: EdgeInsets.only(
+                                      right: blockHorizontal * 8),
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "Performance",
+                                          style: TextStyle(
+                                              fontSize: blockVertical * 3,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          "Time",
+                                          style: TextStyle(
+                                              fontSize: blockVertical * 3,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        // IconButton(
+                                        //     onPressed: () {},
+                                        //     icon: Icon(
+                                        //       Icons.info_outline_rounded,
+                                        //       size: blockVertical * 5,
+                                        //       color: Color.fromARGB(
+                                        //           255, 143, 141, 141),
+                                        //     ))
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                StreamBuilder<List<GetPerformanceModel>>(
+                                  stream: streamPerform.stream,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return ShimmerBody(
+                                          blockHorizontal, blockVertical);
+                                    } else if (snapshot.hasError) {
+                                      return Center(
+                                          child: Text(
+                                              "Error Bro: ${snapshot.error}"));
+                                    } else if (snapshot.hasData) {
+                                      List<GetPerformanceModel> performance =
+                                          snapshot.data!;
+                                      return Column(
+                                        children: performance.map((e) {
+                                          print('data: ${e}');
+                                          return NilaiProduction(
+                                              blockHorizontal,
+                                              blockVertical,
+                                              "Cycle Ideal / Unit",
+                                              // (e.state == 1)
+                                              // ?
+                                              "3.8 Seconds",
+                                              // : "- Unit",
+                                              "Speedloss / Unit",
+                                              // (e.state == 1)
+                                              //     ?
+                                              "${(e.speedAvg! / 60).toStringAsFixed(2)} Minutes",
+                                              // : "- Unit",
+                                              "Delay Stop / Unit",
+                                              // (e.state == 1)
+                                              "${(e.stoppageAvg! / 60).toStringAsFixed(2)} Minutes");
+                                          // : "- Unit");
+                                        }).toList(),
+                                      );
+                                    } else {
+                                      return Center(
+                                          child: Text("No data available"));
+                                    }
+                                  },
+                                )
+                              ],
+                            ),
+                          ),
+                          Divider(
+                            thickness: blockVertical * 1,
+                          ),
+                          Container(
+                            padding: EdgeInsets.only(
+                                left: blockHorizontal * 10,
+                                right: blockHorizontal * 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  height: blockVertical * 20,
+                                  width: blockHorizontal * 40,
+                                  padding: EdgeInsets.only(
+                                      right: blockHorizontal * 8),
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "Quality",
+                                          style: TextStyle(
+                                              fontSize: blockVertical * 3,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          "Control",
+                                          style: TextStyle(
+                                              fontSize: blockVertical * 3,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                StreamBuilder<List<DashQuality>>(
+                                  stream: streamProd.stream,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return ShimmerBody(
+                                          blockHorizontal, blockVertical);
+                                    } else if (snapshot.hasError) {
+                                      return Center(
+                                          child: Text(
+                                              "Error Bro: ${snapshot.error}"));
+                                    } else if (snapshot.hasData) {
+                                      List<DashQuality> pList = snapshot.data!;
+                                      return Column(
+                                        children: pList.map((e) {
+                                          print('data: ${e}');
+                                          return NilaiProduction(
+                                              blockHorizontal,
+                                              blockVertical,
+                                              "Processed",
+                                              // (e.state == 1)
+                                              // ?
+                                              "${e.processed.toInt()} Units",
+                                              // : "- Unit",
+                                              "Good Product",
+                                              // (e.state == 1)
+                                              //     ?
+                                              "${e.good.toInt()} Units",
+                                              // : "- Unit",
+                                              "Reject Product",
+                                              // (e.state == 1)
+                                              "${e.defect.toInt()} Units");
+                                          // : "- Unit");
+                                        }).toList(),
+                                      );
+                                    } else {
+                                      return Center(
+                                          child: Text("No data available"));
+                                    }
+                                  },
+                                )
+                              ],
+                            ),
+                          ),
+                          Divider(
+                            thickness: blockVertical * 1,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: blockHorizontal * 5,
+                                vertical: blockVertical * 2),
+                            child: (otoritas == "Admin" ||
+                                    otoritas == "User-QC")
+                                ? buttonDefect(blockHorizontal, blockVertical)
+                                : buttonDefectDis(
+                                    blockHorizontal, blockVertical),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                )),
+          ),
+        ));
+  }
+
+  // Widget ShimmerBody(
+  //   double blockHorizontal,
+  //   double blockVertical,
+  // ) {
+  //   return Shimmer.fromColors(
+  //     baseColor: Colors.grey,
+  //     highlightColor: Colors.white,
+  //     child: Container(
+  //       height: blockVertical * 20,
+  //       width: blockHorizontal * 40,
+  //       decoration: BoxDecoration(
+  //           color: Colors.grey,
+  //           border: Border.all(color: Colors.black12),
+  //           borderRadius: BorderRadius.circular(blockVertical * 1)),
+  //     ),
+  //   );
+  // }
+
+  Widget NilaiProduction(
+    double blockHorizontal,
+    double blockVertical,
+    String baris1,
+    String subBaris1,
+    String baris2,
+    String subBaris2,
+    String baris3,
+    String subBaris3,
+  ) {
+    return Container(
+      height: blockVertical * 20,
+      width: blockHorizontal * 40,
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+              end: Alignment.bottomRight,
+              begin: Alignment.topLeft,
+              colors: [
+                Color.fromARGB(255, 180, 179, 179).withOpacity(0.5),
+                Color.fromARGB(255, 182, 182, 182).withOpacity(0.2),
+              ]),
+          border: Border.all(color: Colors.black12),
+          borderRadius: BorderRadius.circular(blockVertical * 1)),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            baris1,
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: blockVertical * 1.8),
+          ),
+          Text(
+            subBaris1,
+            style: TextStyle(fontSize: blockVertical * 1.8),
+          ),
+          Divider(
+            color: Colors.transparent,
+            thickness: blockVertical * 0.5,
+          ),
+          Text(
+            baris2,
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: blockVertical * 1.8),
+          ),
+          Text(
+            subBaris2,
+            style: TextStyle(fontSize: blockVertical * 1.8),
+          ),
+          Divider(color: Colors.transparent, thickness: blockVertical * 0.5),
+          Text(
+            baris3,
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: blockVertical * 1.8),
+          ),
+          Text(
+            subBaris3,
+            style: TextStyle(fontSize: blockVertical * 1.8),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buttonDefect(double blockHorizontal, double blockVertical) {
+    return Material(
+      elevation: 5,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: blockHorizontal * 100,
+        height: blockVertical * 5,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [
+                  Color.fromARGB(211, 122, 2, 18),
+                  Color.fromARGB(235, 99, 14, 14)
+                ])),
+        child: Material(
+          type: MaterialType.canvas,
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          child: InkWell(
+            highlightColor: Color.fromARGB(255, 255, 0, 0),
+            radius: blockVertical * 10,
+            borderRadius: BorderRadius.circular(10),
+            onTap: () {
+              AwesomeDialog(
+                      context: context,
+                      dialogType: DialogType.noHeader,
+                      useRootNavigator: true,
+                      body: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Input Defect Unit",
+                            style: TextStyle(
+                                fontSize: blockVertical * 2.5,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: blockVertical * 1.5,
+                          ),
+                          TextField(
+                            controller: jumlah,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                                hintText: "Input Defect (unit)"),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "*If there is no defect, please enter a value 0 or skip",
+                                style: TextStyle(fontSize: blockVertical * 1.3),
+                              ),
+                            ],
                           )
                         ],
-                      );
-                    }).toList(),
-                  );
-                } else if (snapshot.connectionState ==
-                    ConnectionState.waiting) {
-                  return Container(
-                    height: blockVertical * 80,
-                    width: MediaQuerywidth,
-                    color: Colors.transparent,
-                    child: Center(
-                      child: Shimmer.fromColors(
-                        baseColor: Colors.white,
-                        highlightColor: Colors.grey,
-                        child: Text(
-                          'Loading',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: blockVertical * 5,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
                       ),
-                    ),
-                  );
-                }
-                return Center();
-              },
+                      btnOkText: "Add",
+                      btnOkIcon: FontAwesomeIcons.plus,
+                      btnOkOnPress: () {
+                        InputDefect.defectQuality(int.parse(jumlah.text));
+                      },
+                      btnCancelIcon: FontAwesomeIcons.ban,
+                      btnCancelOnPress: () {})
+                  .show();
+            },
+            child: Center(
+              child: Text(
+                "Input Defect Unit",
+                style: TextStyle(
+                    fontSize: blockVertical * 2,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold),
+              ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buttonDefectDis(double blockHorizontal, double blockVertical) {
+    return Material(
+      elevation: 5,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: blockHorizontal * 100,
+        height: blockVertical * 5,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [
+                  Color.fromARGB(210, 158, 158, 158),
+                  Color.fromARGB(235, 124, 124, 124)
+                ])),
+        child: Center(
+          child: Text(
+            "Input Defect Unit",
+            style: TextStyle(
+                fontSize: blockVertical * 2,
+                color: Colors.white,
+                fontWeight: FontWeight.bold),
           ),
         ),
       ),
@@ -888,21 +853,83 @@ class _M1oeeState extends State<M1oee> {
     );
   }
 
-  Widget percentOEE(double blockHorizontal, double blockVertical, Color colors1,
-      Color colors2, double value, String center) {
-    return CircularPercentIndicator(
-      animateFromLastPercent: true,
-      radius: blockVertical * 8,
-      lineWidth: 10,
-      percent: value,
-      backgroundColor: colors2.withOpacity(0.5),
-      progressColor: colors1,
-      circularStrokeCap: CircularStrokeCap.round,
-      animation: true,
-      animationDuration: 2000,
-      center: Text(
-        "$center %",
-        style: TextStyle(fontSize: blockVertical * 2.5),
+  Widget percentOEE(
+      double blockHorizontal,
+      double blockVertical,
+      String title,
+      dynamic target,
+      int ideal,
+      Color colors1,
+      Color colors2,
+      double value,
+      String center) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+          horizontal: blockHorizontal * 2, vertical: blockVertical * 1),
+      child: Container(
+        height: blockHorizontal * 20,
+        decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                  offset: Offset(3, 5),
+                  color: Colors.black.withOpacity(0.5),
+                  blurRadius: 10)
+            ],
+            borderRadius: BorderRadius.circular(blockVertical * 2)),
+        child: Column(
+          children: [
+            SizedBox(height: blockVertical * 0.5),
+            Text(
+              title,
+              style: TextStyle(
+                  fontSize: blockVertical * 2.5, fontWeight: FontWeight.bold),
+            ),
+            Divider(
+              thickness: 2,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  margin: EdgeInsets.only(right: blockHorizontal * 3),
+                  height: blockVertical * 5,
+                  width: blockHorizontal * 30,
+                  decoration: BoxDecoration(
+                    color: (target.toDouble() <= ideal)
+                        ? Color.fromARGB(255, 255, 17, 0).withOpacity(0.8)
+                        : Color.fromARGB(255, 0, 138, 5).withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(blockVertical * 1),
+                  ),
+                  child: Center(
+                      child: Text(
+                    "Target: ${ideal} %",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: blockVertical * 2,
+                        fontWeight: FontWeight.bold),
+                  )),
+                )
+              ],
+            ),
+            SizedBox(height: blockVertical * 2),
+            CircularPercentIndicator(
+              animateFromLastPercent: true,
+              radius: blockVertical * 9,
+              lineWidth: 15,
+              percent: value,
+              backgroundColor: colors2.withOpacity(0.5),
+              progressColor: colors1,
+              circularStrokeCap: CircularStrokeCap.round,
+              animation: true,
+              animationDuration: 2000,
+              center: Text(
+                "$center %",
+                style: TextStyle(fontSize: blockVertical * 2.5),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -925,19 +952,19 @@ class _M1oeeState extends State<M1oee> {
     );
   }
 
-  Widget CircleBody(
-    double blockHorizontal,
-    double blockVertical,
-  ) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey,
-      highlightColor: Colors.white,
-      child: CircleAvatar(
-        backgroundColor: Colors.grey,
-        radius: blockVertical * 8,
-      ),
-    );
-  }
+  // Widget CircleBody(
+  //   double blockHorizontal,
+  //   double blockVertical,
+  // ) {
+  //   return Shimmer.fromColors(
+  //     baseColor: Colors.grey,
+  //     highlightColor: Colors.white,
+  //     child: CircleAvatar(
+  //       backgroundColor: Colors.grey,
+  //       radius: blockVertical * 8,
+  //     ),
+  //   );
+  // }
 
   Widget rowOEE(double blockHorizontal, double blockVertical,
       String availability, String performance, String quality) {

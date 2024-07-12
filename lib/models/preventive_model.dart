@@ -66,6 +66,10 @@ class PreventiveMessageModel {
         createdAt: json['createdAt'],
         updatedAt: json['updatedAt']);
   }
+  @override
+  String toString() {
+    return '{machine_id: $machine_id,\n idpreventive: $idpreventive,\n message: $message,\n keterangan: $keterangan,\n solved: $solved,\n updatedAt: $updatedAt,\n createdAt: $createdAt}';
+  }
 }
 
 class PreventiveScheduleModel {

@@ -28,8 +28,7 @@ class _FromLoginState extends State<FromLogin> {
     return Timer(
       duration,
       () {
-        Navigator.pushReplacementNamed(context, mydashboard,
-            arguments: 'fromLogin');
+        Navigator.pushReplacementNamed(context, myhome, arguments: 'fromLogin');
       },
     );
   }

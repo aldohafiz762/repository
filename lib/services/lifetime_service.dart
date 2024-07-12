@@ -5,19 +5,33 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GetOneLT {
-  Future getOne(int machine_id) async {
+  Future getOne(int komponen_id) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://bismillah-lulus-ta.vercel.app/api/getOneLT?machine_id=$machine_id");
+        "https://tugasakhirmangjody.my.id/api/getOneLT?komponen_id=$komponen_id");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
     });
-    final data =
-        (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"];
-    final int LT = data['timevalue'];
-    return LT;
+    if (hasilResponseGet.statusCode == 200) {
+      final parsed = json.decode(hasilResponseGet.body) as Map<String, dynamic>;
+      final data = parsed["data"];
+
+      if (data is List<dynamic>) {
+        List<LifetimeModel> ltList = data
+            .map((e) => LifetimeModel.fromJSON(e as Map<String, dynamic>))
+            .toList();
+        return ltList;
+      } else if (data is Map<String, dynamic>) {
+        // Jika data adalah Map, perlakukan dengan benar atau lempar pengecualian
+        return [LifetimeModel.fromJSON(data)];
+      } else {
+        throw Exception('Expected a list or map for "data"');
+      }
+    } else {
+      throw Exception('Failed to load status');
+    }
   }
 }
 
@@ -25,7 +39,7 @@ class GetAllLT {
   Future getAll() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://bismillah-lulus-ta.vercel.app/api/getAllLT");
+    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/getAllLT");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -39,11 +53,11 @@ class GetAllLT {
 }
 
 class UpdateLT {
-  static Future<UpdateLT> updateUmur(int machine_id, int timevalue) async {
+  static Future<UpdateLT> updateUmur(int komponen_id, int timevalue) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://bismillah-lulus-ta.vercel.app/api/updateLT?machine_id=$machine_id");
+        "https://tugasakhirmangjody.my.id/api/updateLT?komponen_id=$komponen_id");
     var responseUpdate = await http.put(
       url,
       headers: {

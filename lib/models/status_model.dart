@@ -2,16 +2,35 @@ import 'dart:async';
 // import 'package:flutter/material.dart';
 
 class DashStatusModel {
+  late bool? setupState, cylinder, breakdown, lock;
   late int? status;
-  late String? id;
-  DashStatusModel({this.status, this.id});
+  late String? id, updatedAt, createdAt;
+  DashStatusModel(
+      {this.status,
+      this.id,
+      this.updatedAt,
+      this.createdAt,
+      this.breakdown,
+      this.cylinder,
+      this.lock,
+      this.setupState});
 
   factory DashStatusModel.fromJSON(Map<String, dynamic> json) {
     return DashStatusModel(
-        id: json['_id'],
+        id: json["_id"],
         // machine_id: json["machine_id"],
         // status: json["status"],
-        status: json['status']);
+        status: json["status"],
+        setupState: json["setupState"],
+        cylinder: json["cylinder"],
+        breakdown: json["breakdown"],
+        lock: json["lock"],
+        updatedAt: json["updatedAt"],
+        createdAt: json["createdAt"]);
+  }
+  @override
+  String toString() {
+    return '{id: $id \n status: $status \n setupState: $setupState \n breakdown: $breakdown \n cylinder: $cylinder \n lock: $lock \n updateAt: $updatedAt \n createdAt: $createdAt}';
   }
 }
 

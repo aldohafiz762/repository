@@ -10,7 +10,7 @@ class PostData {
       String to, String message) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://bismillah-lulus-ta.vercel.app/api/trigTB");
+    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/trigTB");
 
     var responsePost = await http.post(
       url,
@@ -39,7 +39,7 @@ class PostData {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://bismillah-lulus-ta.vercel.app/sendMessageTB?machine_id=$machine_id");
+        "https://tugasakhirmangjody.my.id/sendMessageTB?machine_id=$machine_id");
     var response = await http.post(url,
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ class GetData {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://bismillah-lulus-ta.vercel.app/api/getTB?machine_id=$machine_id");
+        "https://tugasakhirmangjody.my.id/api/getTB?machine_id=$machine_id");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -82,7 +82,7 @@ class UpdateData {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://bismillah-lulus-ta.vercel.app/api/updateTB?machine_id=$machine_id&idorder=$idorder");
+        "https://tugasakhirmangjody.my.id/api/updateTB?machine_id=$machine_id&idorder=$idorder");
 
     var responsePost = await http.put(
       url,

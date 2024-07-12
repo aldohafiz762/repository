@@ -14,7 +14,7 @@ class HttpUserPost {
       String name, String otoritas, String noHp) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://bismillah-lulus-ta.vercel.app/api/register");
+    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/register");
 
     var hasilResponsePost = await http.post(url,
         headers: <String, String>{
@@ -52,8 +52,7 @@ class HttpUserGet {
       this.noHp});
 
   static Future<HttpUserGet> connectAPIGet(String id) async {
-    Uri urlpost =
-        Uri.parse("https://bismillah-lulus-ta.vercel.app/api/users/$id");
+    Uri urlpost = Uri.parse("https://tugasakhirmangjody.my.id/api/users/$id");
 
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
@@ -75,7 +74,7 @@ class HttpUserGet {
 
 //class GET ALL DATA untuk di menu daftar akun--------------------------------------------------------------------------------------------------------------------
 class AllUserGet {
-  final url = 'https://bismillah-lulus-ta.vercel.app/api/users';
+  final url = 'https://tugasakhirmangjody.my.id/api/users';
   Future connectAPIGetAll() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
@@ -99,7 +98,7 @@ class AllUserGet {
   Future getuserMT() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    const url2 = 'https://bismillah-lulus-ta.vercel.app/api/userMT';
+    const url2 = 'https://tugasakhirmangjody.my.id/api/userMT';
     var responseGetAll = await http.get(Uri.parse(url2), headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -126,8 +125,7 @@ class HttpUserPut {
       String name, String otoritas, String noHp) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri urlput =
-        Uri.parse("https://bismillah-lulus-ta.vercel.app/api/users/$id");
+    Uri urlput = Uri.parse("https://tugasakhirmangjody.my.id/api/users/$id");
 
     var hasilResponsePut = await http.put(urlput,
         headers: <String, String>{
@@ -149,7 +147,7 @@ class HttpUserPut {
     }
 
     return HttpUserPut(
-        id: dataPut["id"],
+        id: dataPut["_id"],
         username: dataPut["username"],
         name: dataPut["name"],
         otoritas: dataPut["otoritas"],
@@ -164,8 +162,7 @@ class HttpUserDelete {
   static Future connectAPIDelete(String id) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri urlDel =
-        Uri.parse("https://bismillah-lulus-ta.vercel.app/api/users/$id");
+    Uri urlDel = Uri.parse("https://tugasakhirmangjody.my.id/api/users/$id");
 
     var hasilResponseDel = await http.delete(urlDel, headers: {
       'Content-Type': 'application/json',

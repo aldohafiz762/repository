@@ -122,16 +122,17 @@ class OEEMPDF {
   OEEMPDF({this.mid});
 
   int i = 1;
-  StreamController streamOEEH = StreamController.broadcast();
-  List<OEEHistoriModel> listOEEH = [];
+  StreamController<List<OEEdashModel>> streamOEEH =
+      StreamController.broadcast();
+  List<OEEdashModel> listOEEH = [];
   OEEHistori latestOEEH = OEEHistori();
-  Future<void> OEEHData() async {
-    listOEEH = await latestOEEH.historyOEE(mid!);
+  Future<void> oeeHData() async {
+    listOEEH = await OEEHistori.historyOEE();
     streamOEEH.add(listOEEH);
   }
 
   Future<void> AMROEE() async {
-    await OEEHData();
+    await oeeHData();
     final pdf = pw.Document();
 
     pdf.addPage(

@@ -21,7 +21,7 @@ class ReportMaintenance {
   late Timer timer;
   StreamController streamPrev = StreamController.broadcast();
   List<PreventiveMessageModel> ListPrev = [];
-  GetPreventive prevList = GetPreventive();
+  GetAlarmSensor prevList = GetAlarmSensor();
   Future<void> prevData() async {
     ListPrev = await prevList.getPrev(mid!);
     streamPrev.add(ListPrev);

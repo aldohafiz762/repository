@@ -1,8 +1,6 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:project_tugas_akhir_copy/models/oee_model.dart';
 
 class GetOEE {
@@ -10,21 +8,27 @@ class GetOEE {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://bismillah-lulus-ta.vercel.app/api/getOEE?machine_id=$machine_id");
+        "https://tugasakhirmangjody.my.id/api/getOEE?machine_id=$machine_id");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
     });
-    Iterable it =
-        (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"];
-    List<GetOEEModel> getoee = it.map((e) => GetOEEModel.FromJSON(e)).toList();
-    return getoee;
+    if (hasilResponseGet.statusCode == 200) {
+      Iterable it =
+          (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"];
+      List<GetOEEModel> getoee =
+          it.map((e) => GetOEEModel.FromJSON(e)).toList();
+      return getoee;
+    } else {
+      print('Failed to load data: ${hasilResponseGet.statusCode}');
+      throw Exception('Failed to load data');
+    }
   }
 
-  Future dashOEE() async {
+  static Future<List<OEEdashModel>> dashOEE() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://bismillah-lulus-ta.vercel.app/api/getdashOEE");
+    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/getdashOEE");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -35,43 +39,56 @@ class GetOEE {
       final data = parsed["data"];
       print('Data: $data'); // Debug log untuk memeriksa isi "data"
 
+      List<OEEdashModel> getoee;
+
       if (data is List<dynamic>) {
-        List<OEEdashModel> getoee = data
+        getoee = data
             .map((e) => OEEdashModel.FromJSON(e as Map<String, dynamic>))
             .toList();
-        return getoee;
       } else if (data is Map<String, dynamic>) {
-        // Jika data adalah Map, perlakukan dengan benar atau lempar pengecualian
-        return [OEEdashModel.FromJSON(data)];
+        getoee = [OEEdashModel.FromJSON(data)];
       } else {
         throw Exception('Expected a list or map for "data"');
       }
+
+      // Simpan data terbaru ke SharedPreferences
+      shared.setString(
+          'lastOEEData', json.encode(getoee.map((e) => e.toJson()).toList()));
+
+      return getoee;
     } else {
-      throw Exception('Failed to load status');
+      print('Failed to load status: ${hasilResponseGet.statusCode}');
+      // Coba memuat data dari SharedPreferences
+      String? lastOEEData = shared.getString('lastOEEData');
+      if (lastOEEData != null) {
+        List<dynamic> jsonData = json.decode(lastOEEData);
+        return jsonData.map((e) => OEEdashModel.FromJSON(e)).toList();
+      } else {
+        throw Exception('Failed to load status and no cached data available');
+      }
     }
-    // Iterable it =
-    //     (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"];
-    // List<OEEdashModel> getoee =
-    //     it.map((e) => OEEdashModel.FromJSON(e)).toList();
-    // return getoee;
   }
 }
 
 class OEEHistori {
-  Future historyOEE(int machine_id) async {
+  static Future<List<OEEdashModel>> historyOEE() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse(
-        "https://bismillah-lulus-ta.vercel.app/api/getOEEHistori?machine_id=$machine_id");
+    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/getOEEHistori");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
     });
-    Iterable it =
-        (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"];
-    List<OEEHistoriModel> getoee =
-        it.map((e) => OEEHistoriModel.FromJSON(e)).toList();
-    return getoee;
+    if (hasilResponseGet.statusCode == 200) {
+      Iterable it =
+          (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"];
+      List<OEEdashModel> getoee =
+          it.map((e) => OEEdashModel.FromJSON(e)).toList();
+      return getoee;
+    } else {
+      print('Failed to load history: ${hasilResponseGet.statusCode}');
+      throw Exception('Failed to load history');
+    }
   }
 }
 
@@ -79,7 +96,7 @@ class TrigOEE {
   static Future<TrigOEE> triggerOEE(int machine_id) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://bismillah-lulus-ta.vercel.app/api/trigOEE");
+    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/trigOEE");
     var response = await http.post(url,
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +104,10 @@ class TrigOEE {
         },
         body: jsonEncode({"machine_id": machine_id}));
     if (response.statusCode == 200) {
-      print(response.statusCode);
+      print('Trigger OEE succeeded with status code: ${response.statusCode}');
+    } else {
+      print('Trigger OEE failed with status code: ${response.statusCode}');
+      throw Exception('Failed to trigger OEE');
     }
     return TrigOEE();
   }
@@ -97,7 +117,7 @@ class ResetOEE {
   static Future<ResetOEE> resOEE(int machine_id) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://bismillah-lulus-ta.vercel.app/api/resetOEE");
+    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/resetOEE");
     var response = await http.put(url,
         headers: {
           'Content-Type': 'application/json',
@@ -105,7 +125,10 @@ class ResetOEE {
         },
         body: jsonEncode({"machine_id": machine_id}));
     if (response.statusCode == 200) {
-      print(response.statusCode);
+      print('Reset OEE succeeded with status code: ${response.statusCode}');
+    } else {
+      print('Reset OEE failed with status code: ${response.statusCode}');
+      throw Exception('Failed to reset OEE');
     }
     return ResetOEE();
   }

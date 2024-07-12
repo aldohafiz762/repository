@@ -14,18 +14,18 @@ class GetOEEModel {
 
   factory GetOEEModel.FromJSON(Map<String, dynamic> json) {
     return GetOEEModel(
-      tanggal: json['tanggal'],
-      machine_id: json['machine_id'],
-      quality: json['quality'],
-      availability: json['availability'],
-      performance: json['performance'],
-      nilaioee: json['nilaioee'],
-    );
+        tanggal: json['tanggal'],
+        machine_id: json['machine_id'],
+        quality: json['quality'],
+        availability: json['availability'],
+        performance: json['performance'],
+        nilaioee: json['nilaioee'],
+        state: json['state']);
   }
 }
 
 class OEEdashModel {
-  late String? tanggal, updatedAt;
+  late String? tanggal, updatedAt, createdAt;
   late int? machine_id, state;
   late dynamic quality, availability, performance, nilaioee;
 
@@ -37,7 +37,8 @@ class OEEdashModel {
       this.quality,
       this.state,
       this.tanggal,
-      this.updatedAt});
+      this.updatedAt,
+      this.createdAt});
 
   factory OEEdashModel.FromJSON(Map<String, dynamic> json) {
     return OEEdashModel(
@@ -47,7 +48,28 @@ class OEEdashModel {
         availability: json['availability'],
         performance: json['performance'],
         nilaioee: json['nilaioee'],
-        updatedAt: json['updatedAt']);
+        state: json['state'],
+        updatedAt: json['updatedAt'],
+        createdAt: json['createdAt']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'tanggal': tanggal,
+      'machine_id': machine_id,
+      'quality': quality,
+      'availability': availability,
+      'performance': performance,
+      'nilaioee': nilaioee,
+      'state': state,
+      'updatedAt': updatedAt,
+      'createdAt': createdAt
+    };
+  }
+
+  @override
+  String toString() {
+    return '{tanggal: $tanggal, machine_id: $machine_id, quality: $quality, availability: $availability, performance: $performance, nilaioee: $nilaioee, updatedAt: $updatedAt}';
   }
 }
 

@@ -8,8 +8,7 @@ class TrigPerformance {
   static Future<TrigPerformance> triggerPerformance(int machine_id) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url =
-        Uri.parse("https://bismillah-lulus-ta.vercel.app/api/trigPerformance");
+    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/trigPerformance");
     var response = await http.post(url,
         headers: {
           'Content-Type': 'application/json',
@@ -28,7 +27,7 @@ class ResetPerformance {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url =
-        Uri.parse("https://bismillah-lulus-ta.vercel.app/api/resetPerformance");
+        Uri.parse("https://tugasakhirmangjody.my.id/api/resetPerformance");
     var response = await http.put(url,
         headers: {
           'Content-Type': 'application/json',
@@ -43,19 +42,38 @@ class ResetPerformance {
 }
 
 class GetPerformance {
-  Future getPerform(int machine_id) async {
+  static Future<List<GetPerformanceModel>> getPerform() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse(
-        "https://bismillah-lulus-ta.vercel.app/api/latestPerformance?machine_id=$machine_id");
+    Uri url =
+        Uri.parse("https://tugasakhirmangjody.my.id/api/latestPerformance");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
     });
-    Iterable it =
-        (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"];
-    List<GetPerformanceModel> getPerformm =
-        it.map((e) => GetPerformanceModel.fromJSON(e)).toList();
-    return getPerformm;
+    // Iterable it =
+    //     (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"];
+    // List<GetPerformanceModel> getPerformm =
+    //     it.map((e) => GetPerformanceModel.fromJSON(e)).toList();
+    // return getPerformm;
+    if (hasilResponseGet.statusCode == 200) {
+      final parsed = json.decode(hasilResponseGet.body) as Map<String, dynamic>;
+      final data = parsed["data"];
+
+      if (data is List<dynamic>) {
+        List<GetPerformanceModel> pList = data
+            .map((e) => GetPerformanceModel.fromJSON(e as Map<String, dynamic>))
+            .toList();
+        return pList;
+      } else if (data is Map<String, dynamic>) {
+        GetPerformanceModel pList = GetPerformanceModel.fromJSON(data);
+        // print("data: $status");
+        return [pList];
+      } else {
+        throw Exception('Expected a list or map for "data"');
+      }
+    } else {
+      throw Exception('Failed to load status');
+    }
   }
 }

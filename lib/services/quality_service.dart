@@ -11,8 +11,7 @@ class TrigQuality {
   TrigQuality({this.machine_id, this.tipe});
 
   static Future<TrigQuality> triggerQuality(int machine_id, String tipe) async {
-    Uri url =
-        Uri.parse('https://bismillah-lulus-ta.vercel.app/api/trigQuality');
+    Uri url = Uri.parse('https://tugasakhirmangjody.my.id/api/trigQuality');
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
 
@@ -45,26 +44,69 @@ class GetQuality {
   Future getQualityM(int machine_id, String tipe) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse(
-        "https://bismillah-lulus-ta.vercel.app/api/getQualityData?m_id=$machine_id&tipe=$tipe");
+    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/getQualityData");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
     });
     Iterable it =
         (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"];
-    List<CurrentQuality> QualityM1_A =
+    List<CurrentQuality> qualityM1_A =
         it.map((e) => CurrentQuality.fromJSON(e)).toList();
-    return QualityM1_A;
+    return qualityM1_A;
   }
 }
 
 class QualityDash {
-  Future dashQualityM() async {
+  static List<DashQuality> _lastSuccessfulData =
+      []; // Simpan data terakhir yang berhasil
+
+  static Future<List<DashQuality>> dashQualityM() async {
+    try {
+      final SharedPreferences shared = await SharedPreferences.getInstance();
+      var getToken = shared.getString("token");
+      Uri url =
+          Uri.parse("https://tugasakhirmangjody.my.id/api/getQualityData");
+      var hasilResponseGet = await http.get(url, headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic $getToken'
+      });
+      if (hasilResponseGet.statusCode == 200) {
+        final parsed =
+            json.decode(hasilResponseGet.body) as Map<String, dynamic>;
+        final data = parsed["data"];
+
+        if (data is List<dynamic>) {
+          List<DashQuality> qualityList = data
+              .map((e) => DashQuality.fromJSON(e as Map<String, dynamic>))
+              .toList();
+          _lastSuccessfulData =
+              qualityList; // Update data terakhir yang berhasil
+          return qualityList;
+        } else if (data is Map<String, dynamic>) {
+          DashQuality quality = DashQuality.fromJSON(data);
+          _lastSuccessfulData = [quality]; // Update data terakhir yang berhasil
+          return [quality];
+        } else {
+          throw Exception('Expected a list or map for "data"');
+        }
+      } else {
+        throw Exception(
+            'Failed to load status. Status code: ${hasilResponseGet.statusCode}, body: ${hasilResponseGet.body}');
+      }
+    } catch (e) {
+      print('Failed to fetch data: $e');
+      return _lastSuccessfulData; // Kembalikan data terakhir yang berhasil diambil
+    }
+  }
+}
+
+class HistoryQuality {
+  static Future<List<DashQuality>> historyQuality(int m_id) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url =
-        Uri.parse("https://bismillah-lulus-ta.vercel.app/api/getQualityData");
+    Uri url = Uri.parse(
+        "https://tugasakhirmangjody.my.id/api/reportQuality?m_id=$m_id");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -74,34 +116,29 @@ class QualityDash {
       final data = parsed["data"];
 
       if (data is List<dynamic>) {
-        List<DashQuality> dashQualityM = data
+        List<DashQuality> qualityList = data
             .map((e) => DashQuality.fromJSON(e as Map<String, dynamic>))
             .toList();
-        return dashQualityM;
+        return qualityList;
       } else if (data is Map<String, dynamic>) {
-        // Jika data adalah Map, perlakukan dengan benar atau lempar pengecualian
-        return [DashQuality.fromJSON(data)];
+        DashQuality quality = DashQuality.fromJSON(data);
+        // print("data: $status");
+        return [quality];
       } else {
         throw Exception('Expected a list or map for "data"');
       }
     } else {
       throw Exception('Failed to load status');
     }
-    // Iterable it =
-    //     (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"];
-    // List<DashQuality> dashQualityM =
-    //     it.map((e) => DashQuality.fromJSON(e)).toList();
-
-    // return dashQualityM;
   }
 }
 
 class RecordQuality {
-  Future getrecQuality(int machine_id) async {
+  Future getrecQuality(int m_id) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://bismillah-lulus-ta.vercel.app/api/getRecQuality?m_id=$machine_id");
+        "https://tugasakhirmangjody.my.id/api/getRecQuality?m_id=$m_id");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -119,10 +156,8 @@ class InputDefect {
   late String? tipe;
   InputDefect({this.defect});
 
-  static Future<InputDefect> defectQuality(
-      int defect, int machine_id, String tipe) async {
-    Uri url = Uri.parse(
-        'https://bismillah-lulus-ta.vercel.app/api/defect?m_id=$machine_id&tipe=$tipe');
+  static Future<InputDefect> defectQuality(int defect) async {
+    Uri url = Uri.parse('https://tugasakhirmangjody.my.id/api/inputDefect');
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
 
@@ -150,7 +185,7 @@ class ResetQuality {
   ResetQuality({this.machine_id});
   static Future<ResetQuality> reset(int machine_id) async {
     Uri url = Uri.parse(
-        'https://bismillah-lulus-ta.vercel.app/api/resetQuality?m_id=$machine_id');
+        'https://tugasakhirmangjody.my.id/api/resetQuality?m_id=$machine_id');
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     var resetResponse = await http.put(

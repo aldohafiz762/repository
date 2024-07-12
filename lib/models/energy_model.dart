@@ -1,8 +1,17 @@
 // ignore: depend_on_referenced_packages
 
 class EnergyModel {
-  late String? id;
-  late dynamic voltage, current, power, energy, frequency, pf;
+  late String? id, createdAt;
+  late dynamic voltage,
+      current,
+      power,
+      energy,
+      frequency,
+      pf,
+      temperature,
+      strain,
+      vibration,
+      pressure;
 
   EnergyModel(
       {this.voltage,
@@ -11,7 +20,12 @@ class EnergyModel {
       this.energy,
       this.pf,
       this.frequency,
-      this.id});
+      this.temperature,
+      this.pressure,
+      this.strain,
+      this.vibration,
+      this.id,
+      this.createdAt});
 
   factory EnergyModel.fromJSON(Map<String, dynamic> json) {
     return EnergyModel(
@@ -21,7 +35,16 @@ class EnergyModel {
         power: json['power'],
         energy: json['energy'],
         frequency: json['frequency'],
-        pf: json['pf']);
+        pf: json['pf'],
+        temperature: json['temperature'],
+        pressure: json['pressure'],
+        strain: json['strain'],
+        vibration: json['vibration'],
+        createdAt: json['createdAt']);
+  }
+  @override
+  String toString() {
+    return '{id: $id, voltage: $voltage, current: $current, power: $power, energy: $energy, frequency: $frequency, pf: $pf, temperature: $temperature, pressure: $pressure, strain: $strain, vibration: $vibration, createdAt: $createdAt}';
   }
 }
 
@@ -35,15 +58,12 @@ class VoltPoint {
 
 class VoltModel {
   late dynamic voltage;
+  late String? createdAt;
 
-  VoltModel({
-    this.voltage,
-  });
+  VoltModel({this.voltage, this.createdAt});
 
   factory VoltModel.fromJSON(Map<String, dynamic> json) {
-    return VoltModel(
-      voltage: json['voltage'],
-    );
+    return VoltModel(voltage: json['voltage'], createdAt: json['createdAt']);
   }
 }
 
@@ -56,15 +76,12 @@ class CurrentPoint {
 
 class CurrentModel {
   late dynamic current;
+  late String? createdAt;
 
-  CurrentModel({
-    this.current,
-  });
+  CurrentModel({this.current, this.createdAt});
 
   factory CurrentModel.fromJSON(Map<String, dynamic> json) {
-    return CurrentModel(
-      current: json['current'],
-    );
+    return CurrentModel(current: json['current'], createdAt: json['createdAt']);
   }
 }
 
@@ -77,15 +94,12 @@ class PowerPoint {
 
 class PowerModel {
   late dynamic power;
+  late String? createdAt;
 
-  PowerModel({
-    this.power,
-  });
+  PowerModel({this.power, this.createdAt});
 
   factory PowerModel.fromJSON(Map<String, dynamic> json) {
-    return PowerModel(
-      power: json['power'],
-    );
+    return PowerModel(power: json['power'], createdAt: json['createdAt']);
   }
 }
 
@@ -98,15 +112,12 @@ class EnergyPoint {
 
 class EnergiModel {
   late double? energy;
+  late String? createdAt;
 
-  EnergiModel({
-    this.energy,
-  });
+  EnergiModel({this.energy, this.createdAt});
 
   factory EnergiModel.fromJSON(Map<String, dynamic> json) {
-    return EnergiModel(
-      energy: json['energy'],
-    );
+    return EnergiModel(energy: json['energy'], createdAt: json['createdAt']);
   }
 }
 
@@ -119,15 +130,32 @@ class FrequencyPoint {
 
 class FrequencyModel {
   late dynamic frequency;
+  late String? createdAt;
 
-  FrequencyModel({
-    this.frequency,
-  });
+  FrequencyModel({this.frequency, this.createdAt});
 
   factory FrequencyModel.fromJSON(Map<String, dynamic> json) {
     return FrequencyModel(
-      frequency: json['frequency'],
-    );
+        frequency: json['frequency'], createdAt: json['createdAt']);
+  }
+}
+
+//TEMPERATURE
+class TempPoint {
+  late final double x;
+  late final double y;
+  TempPoint({required this.x, required this.y});
+}
+
+class TempModel {
+  late dynamic temperature;
+  late String? createdAt;
+
+  TempModel({this.temperature, this.createdAt});
+
+  factory TempModel.fromJSON(Map<String, dynamic> json) {
+    return TempModel(
+        temperature: json['temperature'], createdAt: json['createdAt']);
   }
 }
 
@@ -140,14 +168,67 @@ class PfPoint {
 
 class PfModel {
   late dynamic pf;
+  late String? createdAt;
 
-  PfModel({
-    this.pf,
-  });
+  PfModel({this.pf, this.createdAt});
 
   factory PfModel.fromJSON(Map<String, dynamic> json) {
-    return PfModel(
-      pf: json['pf'],
-    );
+    return PfModel(pf: json['pf'], createdAt: json['createdAt']);
+  }
+}
+
+//PRESSURE
+class PressurePoint {
+  late final double x;
+  late final double y;
+  PressurePoint({required this.x, required this.y});
+}
+
+class PressureModel {
+  late dynamic pressure;
+  late String? createdAt;
+
+  PressureModel({this.pressure, this.createdAt});
+
+  factory PressureModel.fromJSON(Map<String, dynamic> json) {
+    return PressureModel(
+        pressure: json['pressure'], createdAt: json['createdAt']);
+  }
+}
+
+//STRAIN
+class StrainPoint {
+  late final double x;
+  late final double y;
+  StrainPoint({required this.x, required this.y});
+}
+
+class StrainModel {
+  late dynamic strain;
+  late String? createdAt;
+
+  StrainModel({this.strain, this.createdAt});
+
+  factory StrainModel.fromJSON(Map<String, dynamic> json) {
+    return StrainModel(strain: json['strain'], createdAt: json['createdAt']);
+  }
+}
+
+//VIBRATION
+class VibrationPoint {
+  late final double x;
+  late final double y;
+  VibrationPoint({required this.x, required this.y});
+}
+
+class VibrationModel {
+  late dynamic vibration;
+  late String? createdAt;
+
+  VibrationModel({this.vibration, this.createdAt});
+
+  factory VibrationModel.fromJSON(Map<String, dynamic> json) {
+    return VibrationModel(
+        vibration: json['vibration'], createdAt: json['createdAt']);
   }
 }

@@ -8,7 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:project_tugas_akhir_copy/services/user_service.dart';
-import 'package:project_tugas_akhir_copy/drawer.dart';
+// import 'package:project_tugas_akhir_copy/drawer.dart';
 import 'package:project_tugas_akhir_copy/models/user_model.dart';
 import 'package:project_tugas_akhir_copy/routes.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -99,37 +99,33 @@ class _MyakunState extends State<Myakun> {
         shadowColor: Colors.transparent,
         title: Text(
           "Manage Accounts",
-          style: TextStyle(fontSize: blockVertical * 2.5),
+          style: TextStyle(
+              fontSize: blockVertical * 3,
+              color: Colors.white,
+              fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: Color.fromARGB(255, 0, 49, 65).withOpacity(0.5),
-        leading: Builder(
-          builder: (context) => IconButton(
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-            icon: Icon(
-              FontAwesomeIcons.bars,
-              size: blockVertical * 3,
-            ),
-          ),
-        ),
+        // leading: Builder(
+        //   builder: (context) => IconButton(
+        //     onPressed: () {
+        //       Scaffold.of(context).openDrawer();
+        //     },
+        //     icon: Icon(
+        //       FontAwesomeIcons.bars,
+        //       size: blockVertical * 3,
+        //     ),
+        //   ),
+        // ),
         actions: [
           IconButton(
               onPressed: () {
                 getPDF();
               },
               icon: Icon(FontAwesomeIcons.filePdf)),
-          IconButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, mydashboard,
-                    arguments: 'dari mesin 1');
-                // ignore: deprecated_member_use
-              },
-              icon: Icon(FontAwesomeIcons.house)),
         ],
       ),
-      drawer: TheDrawer(mode: "Account"),
+      // drawer: TheDrawer(mode: "Account"),
       body: Container(
         height: double.infinity,
         width: double.infinity,

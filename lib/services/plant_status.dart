@@ -7,7 +7,7 @@
 //   Future statusPlant() async {
 //     final SharedPreferences shared = await SharedPreferences.getInstance();
 //     var getToken = shared.getString("token");
-//     Uri url = Uri.parse("https://bismillah-lulus-ta.vercel.app/getStatus");
+//     Uri url = Uri.parse("https://tugasakhirmangjody.my.id/getStatus");
 //     var response = await http.get(url, headers: {
 //       'Content-Type': 'application/json',
 //       'Authorization': 'Basic $getToken'

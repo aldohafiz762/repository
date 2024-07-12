@@ -8,7 +8,7 @@ class GetPrice {
   Future getPriceList() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://bismillah-lulus-ta.vercel.app/api/getPrice");
+    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/getPrice");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -25,7 +25,7 @@ class TriggCost {
   static Future<TriggCost> trigCost(int machine_id) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://bismillah-lulus-ta.vercel.app/api/trigCost");
+    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/trigCost");
     var hasilResponseGet = await http.post(url,
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ class GetLatestCost {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://bismillah-lulus-ta.vercel.app/api/getCost?machine_id=$machine_id");
+        "https://tugasakhirmangjody.my.id/api/getCost?machine_id=$machine_id");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -61,8 +61,7 @@ class GetDashCost {
   Future getCostDash() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url =
-        Uri.parse("https://bismillah-lulus-ta.vercel.app/api/getDashCost");
+    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/getDashCost");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -80,7 +79,7 @@ class GetCostHistori {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://bismillah-lulus-ta.vercel.app/api/getCostHistori?machine_id=$machine_id");
+        "https://tugasakhirmangjody.my.id/api/getCostHistori?machine_id=$machine_id");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -98,7 +97,7 @@ class ResetCost {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://bismillah-lulus-ta.vercel.app/api/resetCost?machine_id=$machine_id");
+        "https://tugasakhirmangjody.my.id/api/resetCost?machine_id=$machine_id");
     var hasilResponseGet = await http.put(url, headers: <String, String>{
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -115,8 +114,7 @@ class UpdateHarga {
       String tipe, int baku1, int baku2, int baku3) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url =
-        Uri.parse("https://bismillah-lulus-ta.vercel.app/api/updatePrice");
+    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/updatePrice");
     var response = await http.put(url,
         headers: {
           'Content-Type': 'application/json',

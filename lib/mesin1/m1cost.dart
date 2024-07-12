@@ -79,8 +79,11 @@ class _M1costState extends State<M1cost> {
         child: Scaffold(
           appBar: AppBar(
             title: Text(
-              "Machine 1 Cost Price",
-              style: TextStyle(fontSize: blockVertical * 2.5),
+              "Cost Price",
+              style: TextStyle(
+                  fontSize: blockVertical * 3,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
             ),
             centerTitle: true,
             backgroundColor: Color.fromARGB(255, 6, 160, 207),
