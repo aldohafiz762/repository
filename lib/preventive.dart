@@ -113,7 +113,7 @@ class _PreventiveState extends State<Preventive> {
           toolbarHeight: blockVertical * 6,
           shadowColor: Colors.transparent,
           title: Text(
-            "Preventive Maintenance",
+            "Maintenance",
             style: TextStyle(
                 fontSize: blockVertical * 3,
                 fontWeight: FontWeight.bold,
@@ -263,58 +263,58 @@ class _PreventiveState extends State<Preventive> {
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: blockVertical * 12,
-                  // width: blockHorizontal * 15,
-                  child: StreamBuilder(
-                      stream: streamSchedule.stream,
-                      builder: (context, snapshot) {
-                        return Column(
-                          children: listSchedule.map((e) {
-                            if (snapshot.hasData) {
-                              return Schedule(
-                                  blockVertical,
-                                  blockHorizontal,
-                                  "Machine Press",
-                                  (e.hari == "1")
-                                      ? "Monday, At ${e.jam}.${e.menit} WIB"
-                                      : (e.hari == "2")
-                                          ? "Tuesday, At ${e.jam}.${e.menit} WIB"
-                                          : (e.hari == "3")
-                                              ? "Wednesday, At ${e.jam}.${e.menit} WIB"
-                                              : (e.hari == "4")
-                                                  ? "Thursday, At ${e.jam}.${e.menit} WIB"
-                                                  : (e.hari == "5")
-                                                      ? "Friday, At ${e.jam}.${e.menit} WIB"
-                                                      : (e.hari == "6")
-                                                          ? "Saturday, At ${e.jam}.${e.menit} WIB"
-                                                          : "Sunday, At ${e.jam}.${e.menit} WIB",
-                                  e.machine_id!.toInt(),
-                                  "${e.jam}",
-                                  "${e.menit}",
-                                  "${e.hari}");
-                            } else if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              Center(
-                                child: Shimmer.fromColors(
-                                  baseColor: Colors.white,
-                                  highlightColor: Colors.grey,
-                                  child: Text(
-                                    'Loading',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: blockVertical * 5,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }
-                            return Center();
-                          }).toList(),
-                        );
-                      }),
-                ),
+                // SizedBox(
+                //   height: blockVertical * 12,
+                //   // width: blockHorizontal * 15,
+                //   child: StreamBuilder(
+                //       stream: streamSchedule.stream,
+                //       builder: (context, snapshot) {
+                //         return Column(
+                //           children: listSchedule.map((e) {
+                //             if (snapshot.hasData) {
+                //               return Schedule(
+                //                   blockVertical,
+                //                   blockHorizontal,
+                //                   "Machine Press",
+                //                   (e.hari == "1")
+                //                       ? "Monday, At ${e.jam}.${e.menit} WIB"
+                //                       : (e.hari == "2")
+                //                           ? "Tuesday, At ${e.jam}.${e.menit} WIB"
+                //                           : (e.hari == "3")
+                //                               ? "Wednesday, At ${e.jam}.${e.menit} WIB"
+                //                               : (e.hari == "4")
+                //                                   ? "Thursday, At ${e.jam}.${e.menit} WIB"
+                //                                   : (e.hari == "5")
+                //                                       ? "Friday, At ${e.jam}.${e.menit} WIB"
+                //                                       : (e.hari == "6")
+                //                                           ? "Saturday, At ${e.jam}.${e.menit} WIB"
+                //                                           : "Sunday, At ${e.jam}.${e.menit} WIB",
+                //                   e.machine_id!.toInt(),
+                //                   "${e.jam}",
+                //                   "${e.menit}",
+                //                   "${e.hari}");
+                //             } else if (snapshot.connectionState ==
+                //                 ConnectionState.waiting) {
+                //               Center(
+                //                 child: Shimmer.fromColors(
+                //                   baseColor: Colors.white,
+                //                   highlightColor: Colors.grey,
+                //                   child: Text(
+                //                     'Loading',
+                //                     textAlign: TextAlign.center,
+                //                     style: TextStyle(
+                //                       fontSize: blockVertical * 5,
+                //                       fontWeight: FontWeight.bold,
+                //                     ),
+                //                   ),
+                //                 ),
+                //               );
+                //             }
+                //             return Center();
+                //           }).toList(),
+                //         );
+                //       }),
+                // ),
               ],
             ),
           ),

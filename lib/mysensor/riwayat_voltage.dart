@@ -36,7 +36,8 @@ class _RiwayatVoltageState extends State<RiwayatVoltage> {
 
   Future<void> latestvolt() async {
     try {
-      List<VoltModel> voltList = await getLatestvolt.getVolt();
+      List<VoltModel> voltList =
+          (await getLatestvolt.getVolt()) as List<VoltModel>;
       if (!streamVolt.isClosed) {
         streamVolt.add(voltList);
       }

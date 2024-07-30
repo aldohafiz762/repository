@@ -36,7 +36,7 @@ class _RiwayatPfState extends State<RiwayatPf> {
 
   Future<void> latestpf() async {
     try {
-      List<PfModel> curList = await getLatestpf.getPf();
+      List<PfModel> curList = (await getLatestpf.getPf()) as List<PfModel>;
       if (!streampf.isClosed) {
         streampf.add(curList);
       }

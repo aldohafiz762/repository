@@ -473,11 +473,11 @@ class CostMPDF {
                     (e) => [
                       "${i++}",
                       (DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                          .parse(e.updatedAt!)
+                          .parse(e.tanggal!)
                           .toLocal()
                           .toString()
                           .split(' ')[0]),
-                      "${e.tipe}",
+                      // "${e.tipe}",
                       "${e.good}",
                       "${e.harga_unit}",
                       "${e.total_harga}"

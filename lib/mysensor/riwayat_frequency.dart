@@ -29,23 +29,25 @@ class _RiwayatFrequencyState extends State<RiwayatFrequency> {
     });
   }
 
+  late Timer timer;
   //STREAM CONTROLLER SENSOR
   StreamController<List<FrequencyModel>> streamFreq =
       StreamController.broadcast();
-  late Timer timer;
+
   TableperEnergy getLatestfreq = TableperEnergy();
 
   Future<void> latestfreq() async {
     try {
-      List<FrequencyModel> curList = await getLatestfreq.getFrequency();
+      List<FrequencyModel> freqList =
+          (await getLatestfreq.getFrequency()) as List<FrequencyModel>;
       if (!streamFreq.isClosed) {
-        streamFreq.add(curList);
+        streamFreq.add(freqList);
       }
     } catch (e) {
       if (!streamFreq.isClosed) {
-        streamFreq.addError('Failed to fetch current data');
+        streamFreq.addError('Failed to fetch frequency data');
       }
-      print('Error fetching current data: $e'); // Add logging for error
+      print('Error fetching frequency data: $e'); // Add logging for error
     }
   }
 

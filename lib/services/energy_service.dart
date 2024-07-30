@@ -4,9 +4,9 @@ import 'package:project_tugas_akhir_copy/models/energy_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Energy {
-  final url = 'https://tugasakhirmangjody.my.id/api/sensGauge';
+  final url = 'https://semoga-lulus.vercel.app/api/sensGauge';
 
-  Future getEnergy() async {
+  Future<List<EnergyModel>> getEnergy() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     try {
@@ -19,16 +19,38 @@ class Energy {
             (json.decode(responseGetAll.body) as Map<String, dynamic>)["data"];
         List<EnergyModel> energyList =
             it.map((e) => EnergyModel.fromJSON(e)).toList();
+
+        // Save the fetched data to SharedPreferences
+        shared.setString('lastEnergyData',
+            json.encode(energyList.map((e) => e.toJSON()).toList()));
+
         return energyList;
+      } else {
+        // If the request fails, return the last saved data
+        return await _getLastSavedEnergyData(shared);
       }
     } catch (e) {
       print(e.toString());
+      // If an error occurs, return the last saved data
+      return await _getLastSavedEnergyData(shared);
     }
+  }
+
+  Future<List<EnergyModel>> _getLastSavedEnergyData(
+      SharedPreferences shared) async {
+    var lastData = shared.getString('lastEnergyData');
+    if (lastData != null) {
+      Iterable it = json.decode(lastData);
+      List<EnergyModel> energyList =
+          it.map((e) => EnergyModel.fromJSON(e)).toList();
+      return energyList;
+    }
+    return []; // Return an empty list if no data is found
   }
 }
 
 class TableperEnergy {
-  final url = 'https://tugasakhirmangjody.my.id/api/sensTable';
+  final url = 'https://semoga-lulus.vercel.app/api/sensTable';
 
   //VOLTAGE
   Future getVolt() async {
@@ -199,7 +221,7 @@ class TableperEnergy {
 }
 
 class ChartperEnergy {
-  final url = 'https://tugasakhirmangjody.my.id/api/sensChart';
+  final url = 'https://semoga-lulus.vercel.app/api/sensChart';
 
   //VOLTAGE
   Future getVolt() async {

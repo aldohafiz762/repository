@@ -37,7 +37,8 @@ class _RiwayatCurrentState extends State<RiwayatCurrent> {
 
   Future<void> latestcurrent() async {
     try {
-      List<CurrentModel> curList = await getLatestcurrent.getCurrent();
+      List<CurrentModel> curList =
+          (await getLatestcurrent.getCurrent()) as List<CurrentModel>;
       if (!streamCurrent.isClosed) {
         streamCurrent.add(curList);
       }

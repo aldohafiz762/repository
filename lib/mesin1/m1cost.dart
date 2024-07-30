@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:project_tugas_akhir_copy/main.dart';
 import 'package:project_tugas_akhir_copy/services/costprice_service.dart';
 import 'package:project_tugas_akhir_copy/back_button_pop.dart';
 import 'package:project_tugas_akhir_copy/additional/mpricelist.dart';
@@ -14,16 +15,16 @@ class M1cost extends StatefulWidget {
   static const nameRoute = '/m1cost';
   const M1cost(String k, {super.key});
 
-  static const List<Tab> myTabs = [
-    Tab(
-      text: "Production",
-      icon: Icon(FontAwesomeIcons.productHunt),
-    ),
-    Tab(
-      text: "Price List",
-      icon: Icon(FontAwesomeIcons.moneyBillWave),
-    ),
-  ];
+  // static const List<Tab> myTabs = [
+  //   Tab(
+  //     text: "Production",
+  //     icon: Icon(FontAwesomeIcons.productHunt),
+  //   ),
+  //   Tab(
+  //     text: "Price List",
+  //     icon: Icon(FontAwesomeIcons.moneyBillWave),
+  //   ),
+  // ];
   @override
   State<M1cost> createState() => _M1costState();
 }
@@ -74,52 +75,49 @@ class _M1costState extends State<M1cost> {
     double blockVertical = MediaQueryheight / 100;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: DefaultTabController(
-        length: M1cost.myTabs.length,
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(
-              "Cost Price",
-              style: TextStyle(
-                  fontSize: blockVertical * 3,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white),
-            ),
-            centerTitle: true,
-            backgroundColor: Color.fromARGB(255, 6, 160, 207),
-            toolbarHeight: blockVertical * 8,
-            leading: backbutton(context),
-            bottom: TabBar(
-              tabs: M1cost.myTabs,
-              indicatorColor: Colors.white,
-              indicatorWeight: 3,
-              indicatorPadding: EdgeInsets.all(5),
-            ),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            "Cost Price",
+            style: TextStyle(
+                fontSize: blockVertical * 3,
+                fontWeight: FontWeight.bold,
+                color: Colors.white),
           ),
-          body: Container(
-            height: double.infinity,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color.fromARGB(255, 29, 206, 215),
-                    Color.fromARGB(255, 19, 78, 227),
-                  ]),
-            ),
-            child: TabBarView(children: [
-              Production(blockHorizontal, blockVertical),
-              M1pricelist()
-            ]),
+          centerTitle: true,
+          backgroundColor: Color.fromARGB(255, 6, 160, 207),
+          toolbarHeight: blockVertical * 8,
+          leading: backbutton(context),
+          // bottom: TabBar(
+          //   tabs: M1cost.myTabs,
+          //   indicatorColor: Colors.white,
+          //   indicatorWeight: 3,
+          //   indicatorPadding: EdgeInsets.all(5),
+          // ),
+        ),
+        body: Container(
+          height: double.infinity,
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color.fromARGB(255, 29, 206, 215),
+                  Color.fromARGB(255, 19, 78, 227),
+                ]),
           ),
+          child: Production(blockHorizontal, blockVertical),
+          // M1pricelist()
+          // ]),
         ),
       ),
+      // ),
     );
   }
 
   Widget listHistory(BuildContext context, String good, String tanggal,
-      String tipe, String total, IconData icon) {
+      String total, IconData icon) {
     final MediaQuerywidth = MediaQuery.of(context).size.width;
     double blockHorizontal = MediaQuerywidth / 100;
     final MediaQueryheight = MediaQuery.of(context).size.height;
@@ -174,6 +172,20 @@ class _M1costState extends State<M1cost> {
                 if (snapshot.hasData) {
                   return Column(
                     children: listCost.map((e) {
+                      String toDateTime(int value) {
+                        final duration = Duration(seconds: value);
+                        final hours = duration.inHours;
+                        final minutes = duration.inMinutes.remainder(60);
+                        final seconds = duration.inSeconds.remainder(60);
+                        return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+                      }
+
+                      dynamic tarif_listrik =
+                          e.daya * e.tarif_kwh * (e.waktu / 3600);
+                      dynamic upah = e.manpower! * (e.waktu / 3600);
+                      int harga_total = e.good! * e.harga_unit!;
+                      dynamic harga_produksi =
+                          tarif_listrik + upah + harga_total;
                       return Column(
                         children: [
                           Row(
@@ -184,15 +196,15 @@ class _M1costState extends State<M1cost> {
                                   blockVertical,
                                   "Date",
                                   (e.state == 1)
-                                      ? (e.tanggal!).split(" ")[0]
+                                      ? (e.tanggal!).split(",")[0]
                                       : "-",
                                   Color.fromARGB(255, 202, 108, 0)),
                               baris1(
                                   blockHorizontal,
                                   blockVertical,
-                                  "Total Price",
+                                  "HPP",
                                   (e.state == 1)
-                                      ? "Rp.${e.total_harga},-"
+                                      ? "Rp.${e.total_harga.toStringAsFixed(2)},-"
                                       : "-",
                                   Color.fromARGB(255, 197, 0, 92))
                             ],
@@ -208,8 +220,8 @@ class _M1costState extends State<M1cost> {
                                 baris2(
                                     blockHorizontal,
                                     blockVertical,
-                                    "Good",
-                                    (e.state == 1) ? "${e.good}" : "-",
+                                    "Man Power",
+                                    (e.state == 1) ? "Rp.${e.manpower},-" : "-",
                                     Color.fromARGB(255, 48, 207, 0)),
                                 SizedBox(
                                   width: blockHorizontal * 1.5,
@@ -217,8 +229,10 @@ class _M1costState extends State<M1cost> {
                                 baris2(
                                     blockHorizontal,
                                     blockVertical,
-                                    "Type",
-                                    (e.state == 1) ? "${e.tipe}" : "-",
+                                    "Tarif kWh",
+                                    (e.state == 1)
+                                        ? "Rp.${e.tarif_kwh},-"
+                                        : "-",
                                     Color.fromARGB(255, 216, 0, 0)),
                                 SizedBox(
                                   width: blockHorizontal * 1.5,
@@ -227,8 +241,49 @@ class _M1costState extends State<M1cost> {
                                     blockHorizontal,
                                     blockVertical,
                                     "Unit Price (Rp)",
-                                    (e.state == 1) ? "${e.harga_unit}" : "-",
+                                    (e.state == 1)
+                                        ? "Rp.${e.harga_unit},-"
+                                        : "-",
                                     Color.fromARGB(255, 0, 12, 187)),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                                top: blockVertical * 2,
+                                left: blockHorizontal * 1,
+                                right: blockHorizontal * 1),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                baris2(
+                                    blockHorizontal,
+                                    blockVertical,
+                                    "Waktu",
+                                    (e.state == 1)
+                                        ? "${toDateTime(e.waktu.toInt())}"
+                                        : "-",
+                                    HexColor('6600CC')),
+                                SizedBox(
+                                  width: blockHorizontal * 1.5,
+                                ),
+                                baris2(
+                                    blockHorizontal,
+                                    blockVertical,
+                                    "Daya (kW)",
+                                    (e.state == 1)
+                                        ? "${e.daya.toStringAsFixed(2)}"
+                                        : "-",
+                                    HexColor('#FF00FF')),
+                                SizedBox(
+                                  width: blockHorizontal * 1.5,
+                                ),
+                                baris2(
+                                    blockHorizontal,
+                                    blockVertical,
+                                    "Good",
+                                    (e.state == 1) ? "${e.good}" : "-",
+                                    HexColor('#CCCC00')),
                               ],
                             ),
                           ),
@@ -304,13 +359,9 @@ class _M1costState extends State<M1cost> {
                                         context,
                                         "Good: ${e.good}",
                                         "${e.tanggal}",
-                                        "${e.tipe}",
-                                        "Rp. ${e.total_harga},-",
-                                        (e.tipe == "A")
-                                            ? FontAwesomeIcons.a
-                                            : (e.tipe == "B")
-                                                ? FontAwesomeIcons.b
-                                                : FontAwesomeIcons.c);
+                                        // "${e.tipe}",
+                                        "Rp. ${e.total_harga.toStringAsFixed(2)},-",
+                                        FontAwesomeIcons.dollarSign);
                                   }
                                   return Center();
                                 }).toList(),

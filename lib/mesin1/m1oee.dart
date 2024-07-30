@@ -64,10 +64,11 @@ class _M1oeeState extends State<M1oee> {
     streamProd.add(qList);
   }
 
-  //AVAILABILITY
+  // AVAILABILITY
   StreamController<List<AvaiModelM>> streamTime = StreamController.broadcast();
   List<AvaiModelM> aList = [];
   GetAvailability availability = GetAvailability();
+
   Future<void> avaidata() async {
     try {
       aList = await GetAvailability.availabilityM();
@@ -229,63 +230,65 @@ class _M1oeeState extends State<M1oee> {
                               dynamic quality = e.quality! * 100;
                               dynamic availability = e.availability! * 100;
                               dynamic performance = e.performance! * 100;
-                              return CarouselSlider(
-                                options: CarouselOptions(
-                                  height: blockVertical * 40,
-                                  enlargeCenterPage: true,
-                                  autoPlay: false,
-                                ),
-                                items: [
-                                  percentOEE(
-                                      blockHorizontal,
-                                      blockVertical,
-                                      "Overall Equipment Effectiveness",
-                                      oee,
-                                      85,
-                                      Colors.lightBlue,
-                                      Colors.lightBlue,
-                                      (e.nilaioee <= 1.0)
-                                          ? e.nilaioee.toDouble()
-                                          : 1.0,
-                                      oee.toStringAsFixed(2)),
-                                  percentOEE(
-                                      blockHorizontal,
-                                      blockVertical,
-                                      "Availability",
-                                      availability,
-                                      90,
-                                      Colors.lightBlue,
-                                      Colors.lightBlue,
-                                      (e.availability <= 1.0)
-                                          ? e.availability.toDouble()
-                                          : 1.0,
-                                      availability.toStringAsFixed(2)),
-                                  percentOEE(
-                                      blockHorizontal,
-                                      blockVertical,
-                                      "Performance",
-                                      performance,
-                                      95,
-                                      Colors.lightBlue,
-                                      Colors.lightBlue,
-                                      (e.performance <= 1.0)
-                                          ? e.performance.toDouble()
-                                          : 1.0,
-                                      performance.toStringAsFixed(2)),
-                                  percentOEE(
-                                      blockHorizontal,
-                                      blockVertical,
-                                      "Quality",
-                                      quality,
-                                      99,
-                                      Colors.lightBlue,
-                                      Colors.lightBlue,
-                                      (e.quality <= 1.0)
-                                          ? e.quality.toDouble()
-                                          : 1.0,
-                                      quality.toStringAsFixed(2)),
-                                ],
-                              );
+                              return (e.state == 1)
+                                  ? CarouselSlider(
+                                      options: CarouselOptions(
+                                        height: blockVertical * 40,
+                                        enlargeCenterPage: true,
+                                        autoPlay: false,
+                                      ),
+                                      items: [
+                                        percentOEE(
+                                            blockHorizontal,
+                                            blockVertical,
+                                            "Overall Equipment Effectiveness",
+                                            oee,
+                                            85,
+                                            Colors.lightBlue,
+                                            Colors.lightBlue,
+                                            (e.nilaioee <= 1.0)
+                                                ? e.nilaioee.toDouble()
+                                                : 1.0,
+                                            oee.toStringAsFixed(2)),
+                                        percentOEE(
+                                            blockHorizontal,
+                                            blockVertical,
+                                            "Availability",
+                                            availability,
+                                            90,
+                                            Colors.lightBlue,
+                                            Colors.lightBlue,
+                                            (e.availability <= 1.0)
+                                                ? e.availability.toDouble()
+                                                : 1.0,
+                                            availability.toStringAsFixed(2)),
+                                        percentOEE(
+                                            blockHorizontal,
+                                            blockVertical,
+                                            "Performance",
+                                            performance,
+                                            95,
+                                            Colors.lightBlue,
+                                            Colors.lightBlue,
+                                            (e.performance <= 1.0)
+                                                ? e.performance.toDouble()
+                                                : 1.0,
+                                            performance.toStringAsFixed(2)),
+                                        percentOEE(
+                                            blockHorizontal,
+                                            blockVertical,
+                                            "Quality",
+                                            quality,
+                                            99,
+                                            Colors.lightBlue,
+                                            Colors.lightBlue,
+                                            (e.quality <= 1.0)
+                                                ? e.quality.toDouble()
+                                                : 1.0,
+                                            quality.toStringAsFixed(2)),
+                                      ],
+                                    )
+                                  : SizedBox();
                             }).toList(),
                           );
                         } else {
@@ -382,19 +385,17 @@ class _M1oeeState extends State<M1oee> {
                                               blockHorizontal,
                                               blockVertical,
                                               "Downtime",
-                                              // (e.state == 1)
-                                              // ?
-                                              "${((e.setup / 60) + (e.breakdown / 60)).toStringAsFixed(2)} Minutes",
-                                              // : "- Unit",
+                                              (e.state == 1)
+                                                  ? "${((e.setup / 60) + (e.breakdown / 60)).toStringAsFixed(2)} Minutes"
+                                                  : "- Unit",
                                               "Uptime",
-                                              // (e.state == 1)
-                                              //     ?
-                                              "${(e.operation / 60).toStringAsFixed(2)} Minutes",
-                                              // : "- Unit",
+                                              (e.state == 1)
+                                                  ? "${(e.operation / 60).toStringAsFixed(2)} Minutes"
+                                                  : "- Unit",
                                               "Overall time",
-                                              // (e.state == 1)
-                                              "10 Minutes");
-                                          // : "- Unit");
+                                              (e.state == 1)
+                                                  ? "1 Hours"
+                                                  : "- Unit");
                                         }).toList(),
                                       );
                                     } else {
@@ -472,19 +473,17 @@ class _M1oeeState extends State<M1oee> {
                                               blockHorizontal,
                                               blockVertical,
                                               "Cycle Ideal / Unit",
-                                              // (e.state == 1)
-                                              // ?
-                                              "3.8 Seconds",
-                                              // : "- Unit",
+                                              (e.state == 1)
+                                                  ? "3.8 Seconds"
+                                                  : "- Unit",
                                               "Speedloss / Unit",
-                                              // (e.state == 1)
-                                              //     ?
-                                              "${(e.speedAvg! / 60).toStringAsFixed(2)} Minutes",
-                                              // : "- Unit",
+                                              (e.state == 1)
+                                                  ? "${(e.speedAvg! / 60).toStringAsFixed(2)} Minutes"
+                                                  : "- Unit",
                                               "Delay Stop / Unit",
-                                              // (e.state == 1)
-                                              "${(e.stoppageAvg! / 60).toStringAsFixed(2)} Minutes");
-                                          // : "- Unit");
+                                              (e.state == 1)
+                                                  ? "${(e.stoppageAvg! / 60).toStringAsFixed(2)} Minutes"
+                                                  : "- Unit");
                                         }).toList(),
                                       );
                                     } else {
@@ -552,19 +551,17 @@ class _M1oeeState extends State<M1oee> {
                                               blockHorizontal,
                                               blockVertical,
                                               "Processed",
-                                              // (e.state == 1)
-                                              // ?
-                                              "${e.processed.toInt()} Units",
-                                              // : "- Unit",
+                                              (e.state == 1)
+                                                  ? "${e.processed.toInt()} Units"
+                                                  : "- Unit",
                                               "Good Product",
-                                              // (e.state == 1)
-                                              //     ?
-                                              "${e.good.toInt()} Units",
-                                              // : "- Unit",
+                                              (e.state == 1)
+                                                  ? "${e.good.toInt()} Units"
+                                                  : "- Unit",
                                               "Reject Product",
-                                              // (e.state == 1)
-                                              "${e.defect.toInt()} Units");
-                                          // : "- Unit");
+                                              (e.state == 1)
+                                                  ? "${e.defect.toInt()} Units"
+                                                  : "- Unit");
                                         }).toList(),
                                       );
                                     } else {

@@ -8,7 +8,7 @@ class TrigPerformance {
   static Future<TrigPerformance> triggerPerformance(int machine_id) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/trigPerformance");
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/trigPerformance");
     var response = await http.post(url,
         headers: {
           'Content-Type': 'application/json',
@@ -26,8 +26,7 @@ class ResetPerformance {
   static Future<ResetPerformance> resPerformance(int machine_id) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url =
-        Uri.parse("https://tugasakhirmangjody.my.id/api/resetPerformance");
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/resetPerformance");
     var response = await http.put(url,
         headers: {
           'Content-Type': 'application/json',
@@ -46,7 +45,7 @@ class GetPerformance {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url =
-        Uri.parse("https://tugasakhirmangjody.my.id/api/latestPerformance");
+        Uri.parse("https://semoga-lulus.vercel.app/api/latestPerformance");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'

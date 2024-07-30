@@ -29,15 +29,17 @@ class _RiwayatEnergyState extends State<RiwayatEnergy> {
     });
   }
 
+  late Timer timer;
   //STREAM CONTROLLER SENSOR
   StreamController<List<EnergiModel>> streamEnergi =
       StreamController.broadcast();
-  late Timer timer;
+
   TableperEnergy getLatestenergy = TableperEnergy();
 
   Future<void> latestenergy() async {
     try {
-      List<EnergiModel> curList = await getLatestenergy.getEnergi();
+      List<EnergiModel> curList =
+          (await getLatestenergy.getEnergi()) as List<EnergiModel>;
       if (!streamEnergi.isClosed) {
         streamEnergi.add(curList);
       }

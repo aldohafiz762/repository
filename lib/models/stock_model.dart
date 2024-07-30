@@ -15,13 +15,22 @@ class StockModel {
         stock: json["stock"],
         stockIn: json["stockIn"],
         stockOut: json["stockOut"],
-        // B: json["B"],
-        // C: json["C"],
         updatedAt: json["updatedAt"]);
   }
+
+  Map<String, dynamic> toJSON() {
+    return {
+      "machine_id": machine_id,
+      "stock": stock,
+      "stockIn": stockIn,
+      "stockOut": stockOut,
+      "updatedAt": updatedAt,
+    };
+  }
+
   @override
   String toString() {
-    return '{machine_id: $machine_id stock: $stock, stockIn: $stockIn, stockOut: $stockOut, updatedAt: $updatedAt}';
+    return '{machine_id: $machine_id, stock: $stock, stockIn: $stockIn, stockOut: $stockOut, updatedAt: $updatedAt}';
   }
 }
 

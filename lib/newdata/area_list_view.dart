@@ -22,13 +22,21 @@ class _AreaListViewState extends State<AreaListView>
     mym1stock,
     mypreventive,
     mym1monitoring,
+    mym1cost
   ];
-  List<String> titleText = <String>['OEE', 'Stock', 'Maintenance', 'Sensor'];
+  List<String> titleText = <String>[
+    'OEE',
+    'Stock',
+    'Maintenance',
+    'Sensor',
+    'Cost Production'
+  ];
   List<String> areaListData = <String>[
     'images/5596.jpg',
     'images/4016257.jpg',
     'images/tech-support-concept-illustration.png',
     'images/20945553.png',
+    'images/budget.png'
   ];
 
   @override
@@ -55,7 +63,7 @@ class _AreaListViewState extends State<AreaListView>
             transform: Matrix4.translationValues(
                 0.0, 30 * (1.0 - widget.mainScreenAnimation!.value), 0.0),
             child: AspectRatio(
-              aspectRatio: 1.0,
+              aspectRatio: 0.7,
               child: Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8),
                 child: GridView(

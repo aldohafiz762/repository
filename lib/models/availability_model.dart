@@ -20,6 +20,18 @@ class AvaiModelM {
       state: json['state'],
     );
   }
+
+  Map<String, dynamic> toJSON() {
+    return {
+      'machine_id': machine_id,
+      'operation': operation,
+      'setup': setup,
+      'breakdown': breakdown,
+      'availabilityrate': availabilityrate,
+      'state': state,
+    };
+  }
+
   @override
   String toString() {
     return '{Machine_id: $machine_id, operation: $operation, setup: $setup, breakdown: $breakdown, availabilityrate: $availabilityrate, state: $state}';

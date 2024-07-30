@@ -10,7 +10,7 @@ class UpdatePreventiveMessage {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://tugasakhirmangjody.my.id/api/updatePrevStatus?machine_id=$machine_id");
+        "https://semoga-lulus.vercel.app/api/updatePrevStatus?machine_id=$machine_id");
     var response = await http.put(url,
         headers: {
           'Content-Type': 'application/json',
@@ -34,8 +34,7 @@ class UpdateJadwalPreventive {
       int machine_id, String hari, String jam, String menit) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url =
-        Uri.parse("https://tugasakhirmangjody.my.id/api/updateJadwalPrev");
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/updateJadwalPrev");
     var response = await http.put(url,
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +60,7 @@ class BuatJadwal {
       int komponen_id, String description) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/createJadwal");
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/createJadwal");
     var response = await http.put(url,
         headers: {
           'Content-Type': 'application/json',
@@ -86,7 +85,7 @@ class GetJadwalPrev {
   Future getJadwal() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/getJadwalPrev");
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/getJadwalPrev");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -101,7 +100,7 @@ class GetJadwalPrev {
   Future getSingleJadwal() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/getJadwalPrev");
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/getJadwalPrev");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -116,7 +115,7 @@ class GetAlarmSensor {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://tugasakhirmangjody.my.id/api/getAlarmSensor?machine_id=$machine_id");
+        "https://semoga-lulus.vercel.app/api/getAlarmSensor?machine_id=$machine_id");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -134,7 +133,7 @@ class GetAlarmRepair {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://tugasakhirmangjody.my.id/api/getAlarmRepair?machine_id=$machine_id");
+        "https://semoga-lulus.vercel.app/api/getAlarmRepair?machine_id=$machine_id");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -152,7 +151,7 @@ class GetAlarmStock {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://tugasakhirmangjody.my.id/api/getAlarmStock?machine_id=$machine_id");
+        "https://semoga-lulus.vercel.app/api/getAlarmStock?machine_id=$machine_id");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'

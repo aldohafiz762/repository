@@ -11,7 +11,7 @@ class TrigQuality {
   TrigQuality({this.machine_id, this.tipe});
 
   static Future<TrigQuality> triggerQuality(int machine_id, String tipe) async {
-    Uri url = Uri.parse('https://tugasakhirmangjody.my.id/api/trigQuality');
+    Uri url = Uri.parse('https://semoga-lulus.vercel.app/api/trigQuality');
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
 
@@ -44,7 +44,7 @@ class GetQuality {
   Future getQualityM(int machine_id, String tipe) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/getQualityData");
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/getQualityData");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -65,8 +65,7 @@ class QualityDash {
     try {
       final SharedPreferences shared = await SharedPreferences.getInstance();
       var getToken = shared.getString("token");
-      Uri url =
-          Uri.parse("https://tugasakhirmangjody.my.id/api/getQualityData");
+      Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/getQualityData");
       var hasilResponseGet = await http.get(url, headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Basic $getToken'
@@ -106,29 +105,52 @@ class HistoryQuality {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://tugasakhirmangjody.my.id/api/reportQuality?m_id=$m_id");
-    var hasilResponseGet = await http.get(url, headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Basic $getToken'
-    });
-    if (hasilResponseGet.statusCode == 200) {
-      final parsed = json.decode(hasilResponseGet.body) as Map<String, dynamic>;
-      final data = parsed["data"];
+        "https://semoga-lulus.vercel.app/api/reportQuality?m_id=$m_id");
 
-      if (data is List<dynamic>) {
-        List<DashQuality> qualityList = data
+    try {
+      var hasilResponseGet = await http.get(url, headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic $getToken'
+      });
+
+      if (hasilResponseGet.statusCode == 200) {
+        final parsed =
+            json.decode(hasilResponseGet.body) as Map<String, dynamic>;
+        final data = parsed["data"];
+
+        List<DashQuality> qualityList;
+
+        if (data is List<dynamic>) {
+          qualityList = data
+              .map((e) => DashQuality.fromJSON(e as Map<String, dynamic>))
+              .toList();
+        } else if (data is Map<String, dynamic>) {
+          qualityList = [DashQuality.fromJSON(data)];
+        } else {
+          throw Exception('Expected a list or map for "data"');
+        }
+
+        // Simpan data yang berhasil diambil ke SharedPreferences
+        shared.setString('lastQualityData',
+            json.encode(qualityList.map((e) => e.toJSON()).toList()));
+        return qualityList;
+      } else {
+        throw Exception('Failed to load status');
+      }
+    } catch (e) {
+      print('Exception caught: $e');
+
+      // Ambil data terakhir yang disimpan dari SharedPreferences
+      String? lastQualityData = shared.getString('lastQualityData');
+      if (lastQualityData != null) {
+        Iterable it = json.decode(lastQualityData);
+        List<DashQuality> qualityList = it
             .map((e) => DashQuality.fromJSON(e as Map<String, dynamic>))
             .toList();
         return qualityList;
-      } else if (data is Map<String, dynamic>) {
-        DashQuality quality = DashQuality.fromJSON(data);
-        // print("data: $status");
-        return [quality];
       } else {
-        throw Exception('Expected a list or map for "data"');
+        throw Exception('No previous data available');
       }
-    } else {
-      throw Exception('Failed to load status');
     }
   }
 }
@@ -138,7 +160,7 @@ class RecordQuality {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://tugasakhirmangjody.my.id/api/getRecQuality?m_id=$m_id");
+        "https://semoga-lulus.vercel.app/api/getRecQuality?m_id=$m_id");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -157,7 +179,7 @@ class InputDefect {
   InputDefect({this.defect});
 
   static Future<InputDefect> defectQuality(int defect) async {
-    Uri url = Uri.parse('https://tugasakhirmangjody.my.id/api/inputDefect');
+    Uri url = Uri.parse('https://semoga-lulus.vercel.app/api/inputDefect');
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
 
@@ -185,7 +207,7 @@ class ResetQuality {
   ResetQuality({this.machine_id});
   static Future<ResetQuality> reset(int machine_id) async {
     Uri url = Uri.parse(
-        'https://tugasakhirmangjody.my.id/api/resetQuality?m_id=$machine_id');
+        'https://semoga-lulus.vercel.app/api/resetQuality?m_id=$machine_id');
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     var resetResponse = await http.put(

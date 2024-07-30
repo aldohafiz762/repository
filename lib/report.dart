@@ -37,6 +37,7 @@ class _ReportState extends State<Report> {
     "OEE",
     "Production",
     "Stock",
+    "Cost Production"
   ];
   String? name, otoritas;
   Future<void> getValidUser() async {
@@ -81,26 +82,6 @@ class _ReportState extends State<Report> {
           ),
           centerTitle: true,
           backgroundColor: Color.fromARGB(255, 0, 85, 110).withOpacity(0.5),
-          // leading: Builder(
-          //   builder: (context) => IconButton(
-          //     onPressed: () {
-          //       Scaffold.of(context).openDrawer();
-          //     },
-          //     icon: Icon(
-          //       FontAwesomeIcons.bars,
-          //       size: blockVertical * 3,
-          //     ),
-          //   ),
-          // ),
-          // actions: [
-          //   IconButton(
-          //       onPressed: () {
-          //         Navigator.pushReplacementNamed(context, mydashboard,
-          //             arguments: 'dari mesin 1');
-          //         // ignore: deprecated_member_use
-          //       },
-          //       icon: Icon(FontAwesomeIcons.house))
-          // ],
         ),
         // drawer: TheDrawer(mode: "Report"),
         body: Container(
@@ -199,210 +180,33 @@ class _ReportState extends State<Report> {
                                                             "Biglosses")
                                                         ? //ELSE IF()
                                                         AMBL()
-                                                        //ALL MACHINE & STOCK
-                                                        // : (reportValue ==
-                                                        //         "Cost Price")
-                                                        //     ? //ELSE IF()
-                                                        //     AMRCS()
-                                                        //ELSE KONDISI DIMANA TIDAK TERPILIH SATU PUN REPORT //ELSE ()
-                                                        : AwesomeDialog(
-                                                            context: context,
-                                                            animType: AnimType
-                                                                .leftSlide,
-                                                            dialogType:
-                                                                DialogType
-                                                                    .warning,
-                                                            title:
-                                                                "Choose Report First!",
-                                                            useRootNavigator:
-                                                                true,
-                                                            autoHide: Duration(
-                                                                seconds: 2),
-                                                          ).show();
-                                    //-----------------------MACHINE 1------------------------//
-                                    //     : (mesinValue ==
-                                    //             "Machine 1") // ELSE IF()
-                                    //         ? (reportValue == "Parameter")
-                                    //         // ? //ELSE IF()
-                                    //         // ParameterMPDF(mid: 1).AMRPARAM()
-                                    //         //MACHINE 1 & OEE
-                                    //         : (reportValue == "OEE")
-                                    //             ? //ELSE IF()
-                                    //             OEEMPDF(mid: 1).AMROEE()
-                                    //             //MACHINE 1 & PRODUCTION
-                                    //             : (reportValue == "Production")
-                                    //                 ? //ELSE IF()
-                                    //                 ProductionMPDF(mid: 1)
-                                    //                     .AMRP()
-                                    //                 //MACHINE 1 & STOCK
-                                    //                 : (reportValue == "Stock")
-                                    //                     ? //ELSE IF()
-                                    //                     StockMPDF(mid: 1).AMRS()
-                                    //                     //MACHINE 1 & STOCK
-                                    //                     : (reportValue ==
-                                    //                             "Cost Price")
-                                    //                         ? //ELSE IF()
-                                    //                         CostMPDF(mid: 1)
-                                    //                             .AMRCS()
-                                    //                         //ELSE KONDISI DIMANA TIDAK TERPILIH SATU PUN REPORT //ELSE ()
-                                    //                         : AwesomeDialog(
-                                    //                             context:
-                                    //                                 context,
-                                    //                             animType: AnimType
-                                    //                                 .leftSlide,
-                                    //                             dialogType:
-                                    //                                 DialogType
-                                    //                                     .warning,
-                                    //                             title:
-                                    //                                 "Choose Report First!",
-                                    //                             useRootNavigator:
-                                    //                                 true,
-                                    //                             autoHide:
-                                    //                                 Duration(
-                                    //                                     seconds:
-                                    //                                         2),
-                                    //                           ).show();
-                                    // //-----------------------MACHINE 2------------------------//
-                                    // (mesinValue == "Machine 2") // ELSE IF()
-                                    //     // ? (reportValue == "Parameter")
-                                    //     //     ? //ELSE IF()
-                                    //     //     ParameterMPDF(mid: 2)
-                                    //     //         .AMRPARAM()
-                                    //     //MACHINE 2 & OEE
-                                    //     ? (reportValue == "OEE")
-                                    //         ? //ELSE IF()
-                                    //         OEEMPDF(mid: 2).AMROEE()
-                                    //         //MACHINE 2 & PRODUCTION
-                                    //         : (reportValue == "Production")
-                                    //             ? //ELSE IF()
-                                    //             ProductionMPDF(mid: 2).AMRP()
-                                    //             //MACHINE 2 & STOCK
-                                    //             : (reportValue == "Stock")
-                                    //                 ? //ELSE IF()
-                                    //                 StockMPDF(mid: 2).AMRS()
-                                    //                 //MACHINE 2 & STOCK
-                                    //                 : (reportValue ==
-                                    //                         "Cost Price")
-                                    //                     ? //ELSE IF()
-                                    //                     CostMPDF(mid: 2).AMRCS()
-                                    //                     //ELSE KONDISI DIMANA TIDAK TERPILIH SATU PUN REPORT //ELSE ()
-                                    //                     : AwesomeDialog(
-                                    //                         context: context,
-                                    //                         animType: AnimType
-                                    //                             .leftSlide,
-                                    //                         dialogType:
-                                    //                             DialogType
-                                    //                                 .warning,
-                                    //                         title:
-                                    //                             "Choose Report First!",
-                                    //                         useRootNavigator:
-                                    //                             true,
-                                    //                         autoHide: Duration(
-                                    //                             seconds: 2),
-                                    //                       ).show()
-                                    //     //-----------------------MACHINE 3------------------------//
-                                    //     : (mesinValue ==
-                                    //             "Machine 3") // ELSE IF()
-                                    //         // ? (reportValue == "Parameter")
-                                    //         //     ? //ELSE IF()
-                                    //         //     ParameterMPDF(mid: 3).AMRPARAM()
-                                    //         //MACHINE 3 & OEE
-                                    //         ? (reportValue == "OEE")
-                                    //             ? //ELSE IF()
-                                    //             OEEMPDF(mid: 3).AMROEE()
-                                    //             //MACHINE 3 & PRODUCTION
-                                    //             : (reportValue == "Production")
-                                    //                 ? //ELSE IF()
-                                    //                 ProductionMPDF(mid: 3)
-                                    //                     .AMRP()
-                                    //                 //MACHINE 3 & STOCK
-                                    //                 : (reportValue == "Stock")
-                                    //                     ? //ELSE IF()
-                                    //                     StockMPDF(mid: 3).AMRS()
-                                    //                     //MACHINE 3 & STOCK
-                                    //                     : (reportValue ==
-                                    //                             "Cost Price")
-                                    //                         ? //ELSE IF()
-                                    //                         CostMPDF(mid: 3)
-                                    //                             .AMRCS()
-                                    //                         //ELSE KONDISI DIMANA TIDAK TERPILIH SATU PUN REPORT //ELSE ()
-                                    //                         : AwesomeDialog(
-                                    //                             context:
-                                    //                                 context,
-                                    //                             animType: AnimType
-                                    //                                 .leftSlide,
-                                    //                             dialogType:
-                                    //                                 DialogType
-                                    //                                     .warning,
-                                    //                             title:
-                                    //                                 "Choose Report First!",
-                                    //                             useRootNavigator:
-                                    //                                 true,
-                                    //                             autoHide:
-                                    //                                 Duration(
-                                    //                                     seconds:
-                                    //                                         2),
-                                    //                           ).show()
-                                    //         //-----------------------MACHINE 4------------------------//
-                                    //         : (mesinValue ==
-                                    //                 "Machine 4") // ELSE IF()
-                                    //             // ? (reportValue == "Parameter")
-                                    //             //     ? //ELSE IF()
-                                    //             //     ParameterMPDF(mid: 4)
-                                    //             //         .AMRPARAM()
-                                    //             //MACHINE 4 & OEE
-                                    //             ? (reportValue == "OEE")
-                                    //                 ? //ELSE IF()
-                                    //                 OEEMPDF(mid: 4).AMROEE()
-                                    //                 //MACHINE 4 & PRODUCTION
-                                    //                 : (reportValue ==
-                                    //                         "Production")
-                                    //                     ? //ELSE IF()
-                                    //                     ProductionMPDF(mid: 4)
-                                    //                         .AMRP()
-                                    //                     //MACHINE 4 & STOCK
-                                    //                     : (reportValue ==
-                                    //                             "Stock")
-                                    //                         ? //ELSE IF()
-                                    //                         StockMPDF(mid: 4)
-                                    //                             .AMRS()
-                                    //                         //MACHINE 4 & STOCK
-                                    //                         : (reportValue ==
-                                    //                                 "Cost Price")
-                                    //                             ? //ELSE IF()
-                                    //                             CostMPDF(mid: 4)
-                                    //                                 .AMRCS()
-                                    //                             //ELSE KONDISI DIMANA TIDAK TERPILIH SATU PUN REPORT //ELSE ()
-                                    //                             : AwesomeDialog(
-                                    //                                 context:
-                                    //                                     context,
-                                    //                                 animType:
-                                    //                                     AnimType
-                                    //                                         .leftSlide,
-                                    //                                 dialogType:
-                                    //                                     DialogType
-                                    //                                         .warning,
-                                    //                                 title:
-                                    //                                     "Choose Report First!",
-                                    //                                 useRootNavigator:
-                                    //                                     true,
-                                    //                                 autoHide: Duration(
-                                    //                                     seconds:
-                                    //                                         2),
-                                    //                               ).show()
-                                    //             //ELSE KONDISI DIMANA TIDAK TERPILIH SATU PUN MACHINE //ELSE ()
-                                    //             : AwesomeDialog(
-                                    //                 context: context,
-                                    //                 animType:
-                                    //                     AnimType.leftSlide,
-                                    //                 dialogType:
-                                    //                     DialogType.warning,
-                                    //                 title:
-                                    //                     "Choose Machine First!",
-                                    //                 useRootNavigator: true,
-                                    //                 autoHide:
-                                    //                     Duration(seconds: 2),
-                                    //               ).show();
+                                                        : (reportValue ==
+                                                                "Cost Production")
+                                                            ? //ELSE IF()
+                                                            AMCOST()
+                                                            //ALL MACHINE & STOCK
+                                                            // : (reportValue ==
+                                                            //         "Cost Price")
+                                                            //     ? //ELSE IF()
+                                                            //     AMRCS()
+                                                            //ELSE KONDISI DIMANA TIDAK TERPILIH SATU PUN REPORT //ELSE ()
+                                                            : AwesomeDialog(
+                                                                context:
+                                                                    context,
+                                                                animType: AnimType
+                                                                    .leftSlide,
+                                                                dialogType:
+                                                                    DialogType
+                                                                        .warning,
+                                                                title:
+                                                                    "Choose Report First!",
+                                                                useRootNavigator:
+                                                                    true,
+                                                                autoHide:
+                                                                    Duration(
+                                                                        seconds:
+                                                                            2),
+                                                              ).show();
                                   },
                                   icon: Icon(
                                     Icons.download,
@@ -438,36 +242,7 @@ class _ReportState extends State<Report> {
                               (reportValue == "All Report") //IF()
                                   //All Machine & All Report
                                   ? allMachine(blockHorizontal, blockVertical)
-                                  //ALL MACHINE & PARAMETER
-                                  // : (reportValue == "Parameter")
-                                  //     ? //ELSE IF()
-                                  //     Column(
-                                  //         mainAxisAlignment:
-                                  //             MainAxisAlignment.start,
-                                  //         crossAxisAlignment:
-                                  //             CrossAxisAlignment.start,
-                                  //         children: [
-                                  //           Text(
-                                  //             "Parameter",
-                                  //             style: TextStyle(
-                                  //                 fontSize:
-                                  //                     blockVertical * 2.5,
-                                  //                 fontWeight:
-                                  //                     FontWeight.bold),
-                                  //           ),
-                                  //           SingleChildScrollView(
-                                  //             scrollDirection:
-                                  //                 Axis.horizontal,
-                                  //             child: Column(
-                                  //               mainAxisAlignment:
-                                  //                   MainAxisAlignment.start,
-                                  //               children: [
-                                  //                 TableParameter(),
-                                  //               ],
-                                  //             ),
-                                  //           ),
-                                  //         ],
-                                  //       )
+
                                   //ALL MACHINE & OEE
                                   : (reportValue == "OEE")
                                       ? //ELSE IF()
@@ -626,25 +401,59 @@ class _ReportState extends State<Report> {
                                                         ),
                                                       ],
                                                     )
-                                                  : Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Center(
-                                                          child: Text(
-                                                            "No Content",
-                                                            style: TextStyle(
-                                                                fontSize:
-                                                                    blockVertical *
-                                                                        3),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    )
+                                                  : (reportValue ==
+                                                          "Cost Production")
+                                                      ? Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .start,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              "Cost Production",
+                                                              style: TextStyle(
+                                                                  fontSize:
+                                                                      blockVertical *
+                                                                          2.5,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                            SingleChildScrollView(
+                                                              scrollDirection:
+                                                                  Axis.horizontal,
+                                                              child: Column(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  TableCost(),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        )
+                                                      : Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Center(
+                                                              child: Text(
+                                                                "No Content",
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        blockVertical *
+                                                                            3),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        )
                           //-----------------------MACHINE 1------------------------//
 
 //---------------------------------------------ISI PREVIEW CONTENT END-----------------------------------------------//
@@ -732,6 +541,23 @@ class _ReportState extends State<Report> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 TableBL(),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: blockVertical * 1,
+          ),
+          Text(
+            "Cost Production",
+            style: TextStyle(
+                fontSize: blockVertical * 2.5, fontWeight: FontWeight.bold),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                TableCost(),
               ],
             ),
           ),

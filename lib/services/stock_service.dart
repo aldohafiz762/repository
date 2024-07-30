@@ -10,63 +10,111 @@ class ReadStock {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://tugasakhirmangjody.my.id/api/getStock?machine_id=$machine_id");
-    var hasilResponseGet = await http.get(url, headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Basic $getToken'
-    });
+        "https://semoga-lulus.vercel.app/api/getStock?machine_id=$machine_id");
 
-    if (hasilResponseGet.statusCode == 200) {
-      final parsed = json.decode(hasilResponseGet.body) as Map<String, dynamic>;
-      print('Parsed JSON: $parsed'); // Debug log untuk memeriksa struktur JSON
-      final data = parsed["data"];
-      print('Data: $data'); // Debug log untuk memeriksa isi "data"
+    try {
+      var hasilResponseGet = await http.get(url, headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic $getToken'
+      });
 
-      if (data is List<dynamic>) {
-        List<StockModel> getoee = data
+      if (hasilResponseGet.statusCode == 200) {
+        final parsed =
+            json.decode(hasilResponseGet.body) as Map<String, dynamic>;
+        print(
+            'Parsed JSON: $parsed'); // Debug log untuk memeriksa struktur JSON
+        final data = parsed["data"];
+        print('Data: $data'); // Debug log untuk memeriksa isi "data"
+
+        List<StockModel> stockList;
+
+        if (data is List<dynamic>) {
+          stockList = data
+              .map((e) => StockModel.fromJSON(e as Map<String, dynamic>))
+              .toList();
+        } else if (data is Map<String, dynamic>) {
+          stockList = [StockModel.fromJSON(data)];
+        } else {
+          throw Exception('Expected a list or map for "data"');
+        }
+
+        // Simpan data yang berhasil diambil ke SharedPreferences
+        shared.setString('lastStockData',
+            json.encode(stockList.map((e) => e.toJSON()).toList()));
+        return stockList;
+      } else {
+        throw Exception('Failed to load status');
+      }
+    } catch (e) {
+      print('Exception caught: $e');
+
+      // Ambil data terakhir yang disimpan dari SharedPreferences
+      String? lastStockData = shared.getString('lastStockData');
+      if (lastStockData != null) {
+        Iterable it = json.decode(lastStockData);
+        List<StockModel> stockList = it
             .map((e) => StockModel.fromJSON(e as Map<String, dynamic>))
             .toList();
-        return getoee;
-      } else if (data is Map<String, dynamic>) {
-        // Jika data adalah Map, perlakukan dengan benar atau lempar pengecualian
-        return [StockModel.fromJSON(data)];
+        return stockList;
       } else {
-        throw Exception('Expected a list or map for "data"');
+        throw Exception('No previous data available');
       }
-    } else {
-      throw Exception('Failed to load status');
     }
   }
 
-  //HISTORY STOCK
+  // HISTORY STOCK
   static Future<List<StockModel>> historyStock() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/reportStock");
-    var hasilResponseGet = await http.get(url, headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Basic $getToken'
-    });
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/reportStock");
 
-    if (hasilResponseGet.statusCode == 200) {
-      final parsed = json.decode(hasilResponseGet.body) as Map<String, dynamic>;
-      print('Parsed JSON: $parsed'); // Debug log untuk memeriksa struktur JSON
-      final data = parsed["data"];
-      print('Data: $data'); // Debug log untuk memeriksa isi "data"
+    try {
+      var hasilResponseGet = await http.get(url, headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic $getToken'
+      });
 
-      if (data is List<dynamic>) {
-        List<StockModel> getoee = data
+      if (hasilResponseGet.statusCode == 200) {
+        final parsed =
+            json.decode(hasilResponseGet.body) as Map<String, dynamic>;
+        print(
+            'Parsed JSON: $parsed'); // Debug log untuk memeriksa struktur JSON
+        final data = parsed["data"];
+        print('Data: $data'); // Debug log untuk memeriksa isi "data"
+
+        List<StockModel> stockList;
+
+        if (data is List<dynamic>) {
+          stockList = data
+              .map((e) => StockModel.fromJSON(e as Map<String, dynamic>))
+              .toList();
+        } else if (data is Map<String, dynamic>) {
+          stockList = [StockModel.fromJSON(data)];
+        } else {
+          throw Exception('Expected a list or map for "data"');
+        }
+
+        // Simpan data yang berhasil diambil ke SharedPreferences
+        shared.setString('lastHistoryStockData',
+            json.encode(stockList.map((e) => e.toJSON()).toList()));
+        return stockList;
+      } else {
+        throw Exception('Failed to load status');
+      }
+    } catch (e) {
+      print('Exception caught: $e');
+
+      // Ambil data terakhir yang disimpan dari SharedPreferences
+      String? lastHistoryStockData = shared.getString('lastHistoryStockData');
+      if (lastHistoryStockData != null) {
+        Iterable it = json.decode(lastHistoryStockData);
+        List<StockModel> stockList = it
             .map((e) => StockModel.fromJSON(e as Map<String, dynamic>))
             .toList();
-        return getoee;
-      } else if (data is Map<String, dynamic>) {
-        // Jika data adalah Map, perlakukan dengan benar atau lempar pengecualian
-        return [StockModel.fromJSON(data)];
+        return stockList;
       } else {
-        throw Exception('Expected a list or map for "data"');
+        throw Exception('No previous data available');
       }
-    } else {
-      throw Exception('Failed to load status');
     }
   }
 
@@ -74,7 +122,7 @@ class ReadStock {
   Future getallStock() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/allStock");
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/allStock");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -103,7 +151,7 @@ class AddStock {
     String now = DateTime.now().toUtc().toIso8601String();
 
     Uri url = Uri.parse(
-        "https://tugasakhirmangjody.my.id/api/addStock?m_id=$machine_id");
+        "https://semoga-lulus.vercel.app/api/addStock?m_id=$machine_id");
 
     var hasilResponsePut = await http.put(
       url,
@@ -145,7 +193,7 @@ class AddriwayatStock {
       int machine_id, int jumlah) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/inputStock");
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/inputStock");
 
     var hasilResponsePost = await http.post(url,
         headers: <String, String>{
@@ -172,7 +220,7 @@ class Getriwayat {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://tugasakhirmangjody.my.id/api/historiStock?m_id=$m_id");
+        "https://semoga-lulus.vercel.app/api/historiStock?m_id=$m_id");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'

@@ -17,7 +17,7 @@ class GetStatusDash {
     try {
       final SharedPreferences shared = await SharedPreferences.getInstance();
       var getToken = shared.getString("token");
-      Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/getStatusDash");
+      Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/getStatusDash");
 
       var hasilResponseGet = await http.get(url, headers: {
         'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ class GetStatusM1 {
   static Future<List<Status1Model>> readStatM1() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/getStatusM1");
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/getStatusM1");
 
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',

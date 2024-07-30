@@ -59,6 +59,7 @@ class _M1monitoringState extends State<M1monitoring> {
       StreamController.broadcast();
   List<EnergyModel> energy = [];
   Energy listEnergy = Energy();
+
   Future<void> get_Energy() async {
     try {
       energy = await listEnergy.getEnergy();
@@ -69,6 +70,7 @@ class _M1monitoringState extends State<M1monitoring> {
       }
       streamEnergy.add(energy);
     } catch (e) {
+      print("Error fetching energy data: $e");
       streamEnergy.addError(e);
     }
   }

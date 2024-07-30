@@ -26,7 +26,8 @@ class GetPriceModel {
 }
 
 class GetCostModel {
-  late int? machine_id, good, total_harga, harga_unit, state;
+  late int? machine_id, good, harga_unit, state, tarif_kwh, manpower;
+  late dynamic daya, waktu, total_harga;
   late String? tipe, tanggal;
 
   GetCostModel(
@@ -36,7 +37,11 @@ class GetCostModel {
       this.state,
       this.tanggal,
       this.tipe,
-      this.total_harga});
+      this.total_harga,
+      this.daya,
+      this.manpower,
+      this.tarif_kwh,
+      this.waktu});
 
   factory GetCostModel.FromJSON(Map<String, dynamic> json) {
     return GetCostModel(
@@ -46,13 +51,18 @@ class GetCostModel {
         total_harga: json['total_harga'],
         tanggal: json['tanggal'],
         tipe: json['tipe'],
-        state: json['state']);
+        state: json['state'],
+        daya: json['daya'],
+        manpower: json['manpower'],
+        tarif_kwh: json['tarif_kwh'],
+        waktu: json['waktu']);
   }
 }
 
 class GetCostHModel {
-  late int? machine_id, good, total_harga, harga_unit, state;
-  late String? tipe, tanggal, updatedAt;
+  late int? machine_id, good, harga_unit, state, tarif_kwh, manpower;
+  late dynamic daya, waktu, total_harga;
+  late String? tanggal, createdAt, updatedAt;
 
   GetCostHModel(
       {this.machine_id,
@@ -60,8 +70,13 @@ class GetCostHModel {
       this.harga_unit,
       this.state,
       this.tanggal,
-      this.tipe,
+      // this.tipe,
       this.total_harga,
+      this.daya,
+      this.manpower,
+      this.tarif_kwh,
+      this.waktu,
+      this.createdAt,
       this.updatedAt});
 
   factory GetCostHModel.FromJSON(Map<String, dynamic> json) {
@@ -71,9 +86,32 @@ class GetCostHModel {
         harga_unit: json['harga_unit'],
         total_harga: json['total_harga'],
         tanggal: json['tanggal'],
-        tipe: json['tipe'],
+        // tipe: json['tipe'],
         state: json['state'],
+        daya: json['daya'],
+        manpower: json['manpower'],
+        tarif_kwh: json['tarif_kwh'],
+        waktu: json['waktu'],
+        createdAt: json['createdAt'],
         updatedAt: json['updatedAt']);
+  }
+
+  Map<String, dynamic> toJSON() {
+    return {
+      'machine_id': machine_id,
+      'good': good,
+      'harga_unit': harga_unit,
+      'total_harga': total_harga,
+      'tanggal': tanggal,
+      // 'tipe': tipe,
+      'state': state,
+      'daya': daya,
+      'manpower': manpower,
+      'tarif_kwh': tarif_kwh,
+      'waktu': waktu,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt
+    };
   }
 }
 

@@ -42,6 +42,24 @@ class EnergyModel {
         vibration: json['vibration'],
         createdAt: json['createdAt']);
   }
+
+  Map<String, dynamic> toJSON() {
+    return {
+      '_id': id,
+      'voltage': voltage,
+      'current': current,
+      'power': power,
+      'energy': energy,
+      'frequency': frequency,
+      'pf': pf,
+      'temperature': temperature,
+      'pressure': pressure,
+      'strain': strain,
+      'vibration': vibration,
+      'createdAt': createdAt,
+    };
+  }
+
   @override
   String toString() {
     return '{id: $id, voltage: $voltage, current: $current, power: $power, energy: $energy, frequency: $frequency, pf: $pf, temperature: $temperature, pressure: $pressure, strain: $strain, vibration: $vibration, createdAt: $createdAt}';
@@ -65,6 +83,10 @@ class VoltModel {
   factory VoltModel.fromJSON(Map<String, dynamic> json) {
     return VoltModel(voltage: json['voltage'], createdAt: json['createdAt']);
   }
+
+  Map<String, dynamic> toJSON() {
+    return {'voltage': voltage, 'createdAt': createdAt};
+  }
 }
 
 //CURRENT
@@ -82,6 +104,10 @@ class CurrentModel {
 
   factory CurrentModel.fromJSON(Map<String, dynamic> json) {
     return CurrentModel(current: json['current'], createdAt: json['createdAt']);
+  }
+
+  Map<String, dynamic> toJSON() {
+    return {'current': current, 'createdAt': createdAt};
   }
 }
 
@@ -101,6 +127,10 @@ class PowerModel {
   factory PowerModel.fromJSON(Map<String, dynamic> json) {
     return PowerModel(power: json['power'], createdAt: json['createdAt']);
   }
+
+  Map<String, dynamic> toJSON() {
+    return {'power': power, 'createdAt': createdAt};
+  }
 }
 
 //ENERGY
@@ -118,6 +148,10 @@ class EnergiModel {
 
   factory EnergiModel.fromJSON(Map<String, dynamic> json) {
     return EnergiModel(energy: json['energy'], createdAt: json['createdAt']);
+  }
+
+  Map<String, dynamic> toJSON() {
+    return {'energy': energy, 'createdAt': createdAt};
   }
 }
 
@@ -138,6 +172,10 @@ class FrequencyModel {
     return FrequencyModel(
         frequency: json['frequency'], createdAt: json['createdAt']);
   }
+
+  Map<String, dynamic> toJSON() {
+    return {'frequency': frequency, 'createdAt': createdAt};
+  }
 }
 
 //TEMPERATURE
@@ -157,6 +195,10 @@ class TempModel {
     return TempModel(
         temperature: json['temperature'], createdAt: json['createdAt']);
   }
+
+  Map<String, dynamic> toJSON() {
+    return {'temperature': temperature, 'createdAt': createdAt};
+  }
 }
 
 //POWER FACTOR
@@ -174,6 +216,10 @@ class PfModel {
 
   factory PfModel.fromJSON(Map<String, dynamic> json) {
     return PfModel(pf: json['pf'], createdAt: json['createdAt']);
+  }
+
+  Map<String, dynamic> toJSON() {
+    return {'pf': pf, 'createdAt': createdAt};
   }
 }
 
@@ -194,6 +240,10 @@ class PressureModel {
     return PressureModel(
         pressure: json['pressure'], createdAt: json['createdAt']);
   }
+
+  Map<String, dynamic> toJSON() {
+    return {'pressure': pressure, 'createdAt': createdAt};
+  }
 }
 
 //STRAIN
@@ -211,6 +261,10 @@ class StrainModel {
 
   factory StrainModel.fromJSON(Map<String, dynamic> json) {
     return StrainModel(strain: json['strain'], createdAt: json['createdAt']);
+  }
+
+  Map<String, dynamic> toJSON() {
+    return {'strain': strain, 'createdAt': createdAt};
   }
 }
 
@@ -230,5 +284,9 @@ class VibrationModel {
   factory VibrationModel.fromJSON(Map<String, dynamic> json) {
     return VibrationModel(
         vibration: json['vibration'], createdAt: json['createdAt']);
+  }
+
+  Map<String, dynamic> toJSON() {
+    return {'vibration': vibration, 'createdAt': createdAt};
   }
 }

@@ -1,7 +1,7 @@
 class DashBLModel {
   late int? machine_id, state;
   late dynamic setup, breakdown, stoppage, speed, startup, reject;
-  late String? updatedAt, createdAt;
+  late String? updatedAt, createdAt, tanggal;
 
   DashBLModel(
       {this.machine_id,
@@ -13,12 +13,12 @@ class DashBLModel {
       this.speed,
       this.startup,
       this.reject,
-      this.updatedAt});
+      this.updatedAt,
+      this.tanggal});
 
   factory DashBLModel.fromJSON(Map<String, dynamic> json) {
     return DashBLModel(
         machine_id: json['machine_id'],
-        // tipe: json['tipe'],
         setup: json['setup'],
         breakdown: json['breakdown'],
         stoppage: json['stoppage'],
@@ -27,10 +27,28 @@ class DashBLModel {
         reject: json['reject'],
         updatedAt: json['updatedAt'],
         state: json['state'],
-        createdAt: json['createdAt']);
+        createdAt: json['createdAt'],
+        tanggal: json['tanggal']);
   }
+
+  Map<String, dynamic> toJSON() {
+    return {
+      'machine_id': machine_id,
+      'setup': setup,
+      'breakdown': breakdown,
+      'stoppage': stoppage,
+      'speed': speed,
+      'startup_reject': startup,
+      'reject': reject,
+      'updatedAt': updatedAt,
+      'createdAt': createdAt,
+      'state': state,
+      'tanggal': tanggal
+    };
+  }
+
   @override
   String toString() {
-    return '{machine_id: $machine_id, setup: $setup, breakdown: $breakdown, stoppage: $stoppage, speed: $speed, reject: $reject, startup_reject: $startup, updatedAt: $updatedAt, createdAt: $createdAt, state: $state}';
+    return '{tanggal: $tanggal, machine_id: $machine_id, setup: $setup, breakdown: $breakdown, stoppage: $stoppage, speed: $speed, reject: $reject, startup_reject: $startup, updatedAt: $updatedAt, createdAt: $createdAt, state: $state}';
   }
 }

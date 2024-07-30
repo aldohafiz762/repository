@@ -38,7 +38,7 @@ class _RiwayatVibrationState extends State<RiwayatVibration> {
   Future<void> latestvibration() async {
     try {
       List<VibrationModel> vibrationList =
-          await getLatestvibration.getVibration();
+          (await getLatestvibration.getVibration()) as List<VibrationModel>;
       if (!streamVibration.isClosed) {
         streamVibration.add(vibrationList);
       }

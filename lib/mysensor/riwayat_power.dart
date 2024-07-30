@@ -36,7 +36,8 @@ class _RiwayatPowerState extends State<RiwayatPower> {
 
   Future<void> latestPower() async {
     try {
-      List<PowerModel> powerList = await getLatestpower.getPower();
+      List<PowerModel> powerList =
+          (await getLatestpower.getPower()) as List<PowerModel>;
       if (!streamPower.isClosed) {
         streamPower.add(powerList);
       }

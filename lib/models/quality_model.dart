@@ -31,7 +31,7 @@ class CurrentQuality {
 class DashQuality {
   late int? machine_id, state;
   late dynamic good, defect, processed, qualityrate;
-  late String? updatedAt, createdAt;
+  late String? updatedAt, createdAt, tanggal;
 
   DashQuality(
       {this.machine_id,
@@ -41,24 +41,39 @@ class DashQuality {
       this.processed,
       this.qualityrate,
       this.createdAt,
-      this.updatedAt});
+      this.updatedAt,
+      this.tanggal});
 
   factory DashQuality.fromJSON(Map<String, dynamic> json) {
     return DashQuality(
-      machine_id: json['machine_id'],
-      // tipe: json['tipe'],
-      good: json['good'],
-      defect: json['defect'],
-      processed: json['processed'],
-      updatedAt: json['updatedAt'],
-      createdAt: json['createdAt'],
-      qualityrate: json['qualityrate'],
-      state: json['state'],
-    );
+        machine_id: json['machine_id'],
+        good: json['good'],
+        defect: json['defect'],
+        processed: json['processed'],
+        updatedAt: json['updatedAt'],
+        createdAt: json['createdAt'],
+        qualityrate: json['qualityrate'],
+        state: json['state'],
+        tanggal: json['tanggal']);
   }
+
+  Map<String, dynamic> toJSON() {
+    return {
+      'machine_id': machine_id,
+      'good': good,
+      'defect': defect,
+      'processed': processed,
+      'updatedAt': updatedAt,
+      'createdAt': createdAt,
+      'qualityrate': qualityrate,
+      'state': state,
+      'tanggal': tanggal
+    };
+  }
+
   @override
   String toString() {
-    return '{machine_id: $machine_id, good: $good, defect: $defect, processed: $processed, qualityrate: $qualityrate, updatedAt: $updatedAt, state: $state, createdAt: $createdAt}';
+    return '{tanggal: $tanggal, machine_id: $machine_id, good: $good, defect: $defect, processed: $processed, qualityrate: $qualityrate, updatedAt: $updatedAt, state: $state, createdAt: $createdAt}';
   }
 }
 

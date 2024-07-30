@@ -13,7 +13,7 @@ class LoginService {
       'Content-Type': 'application/json',
     };
 
-    var url = Uri.parse("https://tugasakhirmangjody.my.id/api/login");
+    var url = Uri.parse("https://semoga-lulus.vercel.app/api/login");
 
     var responseLogin = await client.post(
       url,

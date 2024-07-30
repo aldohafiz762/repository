@@ -9,7 +9,7 @@ class GetOneLT {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://tugasakhirmangjody.my.id/api/getOneLT?komponen_id=$komponen_id");
+        "https://semoga-lulus.vercel.app/api/getOneLT?komponen_id=$komponen_id");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -39,7 +39,7 @@ class GetAllLT {
   Future getAll() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/getAllLT");
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/getAllLT");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -57,7 +57,7 @@ class UpdateLT {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://tugasakhirmangjody.my.id/api/updateLT?komponen_id=$komponen_id");
+        "https://semoga-lulus.vercel.app/api/updateLT?komponen_id=$komponen_id");
     var responseUpdate = await http.put(
       url,
       headers: {

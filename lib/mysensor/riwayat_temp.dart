@@ -36,7 +36,8 @@ class _RiwayatTempState extends State<RiwayatTemp> {
 
   Future<void> latesttemp() async {
     try {
-      List<TempModel> curList = await getLatesttemp.getTemp();
+      List<TempModel> curList =
+          (await getLatesttemp.getTemp()) as List<TempModel>;
       if (!streamtemp.isClosed) {
         streamtemp.add(curList);
       }

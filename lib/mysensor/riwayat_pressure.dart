@@ -37,7 +37,8 @@ class _RiwayatPressureState extends State<RiwayatPressure> {
 
   Future<void> latestpress() async {
     try {
-      List<PressureModel> pressList = await getLatestpress.getPressure();
+      List<PressureModel> pressList =
+          (await getLatestpress.getPressure()) as List<PressureModel>;
       if (!streamPress.isClosed) {
         streamPress.add(pressList);
       }

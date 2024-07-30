@@ -29,16 +29,17 @@ class OEEdashModel {
   late int? machine_id, state;
   late dynamic quality, availability, performance, nilaioee;
 
-  OEEdashModel(
-      {this.availability,
-      this.machine_id,
-      this.nilaioee,
-      this.performance,
-      this.quality,
-      this.state,
-      this.tanggal,
-      this.updatedAt,
-      this.createdAt});
+  OEEdashModel({
+    this.availability,
+    this.machine_id,
+    this.nilaioee,
+    this.performance,
+    this.quality,
+    this.state,
+    this.tanggal,
+    this.updatedAt,
+    this.createdAt,
+  });
 
   factory OEEdashModel.FromJSON(Map<String, dynamic> json) {
     return OEEdashModel(

@@ -110,13 +110,9 @@ class _ListHistoryRepairState extends State<ListHistoryRepair>
                                 const EdgeInsets.symmetric(horizontal: 0.0),
                             child: ExpansionTileCard(
                               // baseColor: DashboardAppTheme.nearlyWhite,
-                              leading: (e.solved == false)
-                                  ? CircleAvatar(
-                                      backgroundColor: Colors.red,
-                                      child: Icon(FontAwesomeIcons.xmark))
-                                  : CircleAvatar(
-                                      backgroundColor: Colors.green,
-                                      child: Icon(FontAwesomeIcons.check)),
+                              leading: CircleAvatar(
+                                  backgroundColor: Colors.orange,
+                                  child: Icon(FontAwesomeIcons.gauge)),
                               title: Text(
                                 e.message!.toString(),
                                 style: TextStyle(
@@ -145,51 +141,6 @@ class _ListHistoryRepairState extends State<ListHistoryRepair>
                                       ),
                                     ),
                                   ),
-                                ),
-                                ButtonBar(
-                                  alignment: MainAxisAlignment.end,
-                                  buttonPadding:
-                                      EdgeInsets.symmetric(horizontal: 8),
-                                  children: <Widget>[
-                                    TextButton(
-                                      onPressed: () {
-                                        UpdatePreventiveMessage.updateMessage(
-                                            e.machine_id!, e.idpreventive!);
-                                      },
-                                      style: TextButton.styleFrom(
-                                        backgroundColor: Colors.blueAccent,
-                                        padding: EdgeInsets.symmetric(
-                                            vertical: 12.0, horizontal: 15.0),
-                                        minimumSize: Size(120, 20),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(30.0),
-                                        ),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.check,
-                                            size: 20,
-                                            color: Colors.white,
-                                          ),
-                                          SizedBox(
-                                            height: 4.0,
-                                            width: 4,
-                                          ),
-                                          Text(
-                                            'Solved',
-                                            style: TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
                                 ),
                               ],
                             ),

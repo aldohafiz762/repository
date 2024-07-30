@@ -66,6 +66,14 @@ Future<void> riwayatstockData() async {
   streamRiwayatStock.add(riwayatStockList);
 }
 
+//STREAM CONTROLLER COST
+StreamController<List<GetCostHModel>> streamCost = StreamController.broadcast();
+List<GetCostHModel> costList = [];
+ReportCost cost = ReportCost();
+Future<void> costData() async {
+  costList = await ReportCost.reportCost();
+  streamCost.add(costList);
+}
 //RIWAYAT STOCK OUT
 // StreamController<List> streamProcessed = StreamController.broadcast();
 // List<RecQuality> stockProcessed = [];
@@ -81,6 +89,7 @@ Future<void> allmachinePDF() async {
   await processedData();
   await oeeHData();
   await blData();
+  await costData();
 
   final pdf = pw.Document();
 
@@ -235,6 +244,39 @@ Future<void> allmachinePDF() async {
                         "${(e.reject).toInt()} Unit "
                       ])
                   .toList()),
+          pw.SizedBox(height: 70),
+          pw.Text(
+            "COST PRODUCTION",
+            softWrap: true,
+            style: pw.TextStyle(
+              font: fontBold,
+            ),
+          ),
+          pw.Table.fromTextArray(
+              cellStyle: pw.TextStyle(font: fontRegular, fontSize: 12),
+              headerStyle: pw.TextStyle(font: fontBold, fontSize: 12),
+              headerAlignment: pw.Alignment.center,
+              cellAlignment: pw.Alignment.center,
+              headers: [
+                'Initially Created',
+                'Latest Update',
+                'Biaya Material',
+                'Biaya Overhead',
+                'Biaya Manpower',
+                'HPP',
+              ],
+              data: costList
+                  .map((e) => [
+                        DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                            DateTime.parse(e.createdAt.toString()).toLocal()),
+                        DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                            DateTime.parse(e.updatedAt.toString()).toLocal()),
+                        "Rp.${(e.good! * e.harga_unit!.toInt()).toStringAsFixed(2)},-",
+                        "Rp.${(e.daya * e.tarif_kwh * (e.waktu / 3600)).toStringAsFixed(2)},-",
+                        "Rp.${(e.manpower! * (e.waktu / 3600)).toStringAsFixed(2)},-",
+                        "Rp.${(e.total_harga).toStringAsFixed(2)},-"
+                      ])
+                  .toList()),
         ];
       },
     ),
@@ -268,6 +310,106 @@ Future<void> allmachinePDF() async {
   final result = await OpenFile.open(filePath);
   print(result);
 } //----------------------------------ALL MACHINE & ALL REPORT END---------------------------------------//
+
+//----------------------------------COST PRODUCTION---------------------------------------//
+
+Future<void> AMCOST() async {
+  await costData();
+  final pdf = pw.Document();
+// Load custom fonts
+  final fontDataRegular = await rootBundle.load("fonts/NotoSans-Regular.ttf");
+  final fontRegular = pw.Font.ttf(fontDataRegular);
+
+  final fontDataBold = await rootBundle.load("fonts/NotoSans-Bold.ttf");
+  final fontBold = pw.Font.ttf(fontDataBold);
+
+  pdf.addPage(
+    pw.MultiPage(
+      pageFormat: PdfPageFormat.a4,
+      build: (pw.Context context) {
+        return [
+          pw.Center(
+            child: pw.Text(
+              "COST PRODUCTION REPORT",
+              softWrap: true,
+              style: pw.TextStyle(font: fontBold, fontSize: 16),
+            ),
+          ),
+          pw.Center(
+            child: pw.Text(
+              "PRESS MACHINE",
+              softWrap: true,
+              style: pw.TextStyle(font: fontBold, fontSize: 16),
+            ),
+          ),
+          pw.SizedBox(height: 20),
+          pw.Text(
+            "COST PRODUCTION",
+            softWrap: true,
+            style: pw.TextStyle(
+              font: fontBold,
+            ),
+          ),
+          pw.Table.fromTextArray(
+            cellStyle: pw.TextStyle(font: fontRegular, fontSize: 12),
+            headerStyle: pw.TextStyle(fontSize: 12, font: fontBold),
+            headerAlignment: pw.Alignment.center,
+            cellAlignment: pw.Alignment.center,
+            headers: [
+              'Initially Create',
+              'Latest Update',
+              'Biaya Material',
+              'Biaya Overhead',
+              'Biaya Manpower',
+              'HPP',
+            ],
+            data: costList
+                .map(
+                  (e) => [
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                        DateTime.parse(e.createdAt.toString()).toLocal()),
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                        DateTime.parse(e.updatedAt.toString()).toLocal()),
+                    "${(e.good! * e.harga_unit!.toInt()).toStringAsFixed(2)}",
+                    "${(e.daya * e.tarif_kwh * (e.waktu / 3600)).toStringAsFixed(2)}",
+                    "${(e.manpower! * (e.waktu / 3600)).toStringAsFixed(2)}",
+                    "${(e.total_harga).toStringAsFixed(2)}"
+                  ],
+                )
+                .toList(),
+          ),
+        ];
+      },
+    ),
+  ); // Page
+  // Save PDF
+  Uint8List bytes = await pdf.save();
+
+  // Get external storage directory
+  Directory? downloadsDir = await getExternalStorageDirectory();
+  if (downloadsDir == null) {
+    throw FileSystemException("Could not get external storage directory");
+  }
+
+  // Create a directory within the external storage directory
+  String dirPath = '${downloadsDir.path}/ProductionMonitoringReports';
+  Directory directory = Directory(dirPath);
+  if (!(await directory.exists())) {
+    await directory.create(recursive: true);
+  }
+
+  // Write PDF to a file within the created directory
+  String filePath = '$dirPath/Production Monitoring Report.pdf';
+  File file = File(filePath);
+  await file.writeAsBytes(bytes);
+
+  // Log path for debugging
+  print('PDF saved at: $filePath');
+
+  // Open PDF
+  final result = await OpenFile.open(filePath);
+  print(result);
+}
 
 //----------------------------------BIGLOSSES---------------------------------------//
 

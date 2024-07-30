@@ -8,7 +8,7 @@ class GetOEE {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
     Uri url = Uri.parse(
-        "https://tugasakhirmangjody.my.id/api/getOEE?machine_id=$machine_id");
+        "https://semoga-lulus.vercel.app/api/getOEE?machine_id=$machine_id");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -28,7 +28,7 @@ class GetOEE {
   static Future<List<OEEdashModel>> dashOEE() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/getdashOEE");
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/getdashOEE");
     var hasilResponseGet = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Basic $getToken'
@@ -74,20 +74,41 @@ class OEEHistori {
   static Future<List<OEEdashModel>> historyOEE() async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/getOEEHistori");
-    var hasilResponseGet = await http.get(url, headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Basic $getToken'
-    });
-    if (hasilResponseGet.statusCode == 200) {
-      Iterable it =
-          (json.decode(hasilResponseGet.body) as Map<String, dynamic>)["data"];
-      List<OEEdashModel> getoee =
-          it.map((e) => OEEdashModel.FromJSON(e)).toList();
-      return getoee;
-    } else {
-      print('Failed to load history: ${hasilResponseGet.statusCode}');
-      throw Exception('Failed to load history');
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/getOEEHistori");
+
+    try {
+      var hasilResponseGet = await http.get(url, headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic $getToken'
+      });
+
+      if (hasilResponseGet.statusCode == 200) {
+        Iterable it = (json.decode(hasilResponseGet.body)
+            as Map<String, dynamic>)["data"];
+        List<OEEdashModel> getoee =
+            it.map((e) => OEEdashModel.FromJSON(e)).toList();
+
+        // Simpan data yang berhasil diambil ke SharedPreferences
+        shared.setString('lastOEEData', json.encode(it.toList()));
+
+        return getoee;
+      } else {
+        print('Failed to load history: ${hasilResponseGet.statusCode}');
+        throw Exception('Failed to load history');
+      }
+    } catch (e) {
+      print('Exception caught: $e');
+
+      // Ambil data terakhir yang disimpan dari SharedPreferences
+      String? lastOEEData = shared.getString('lastOEEData');
+      if (lastOEEData != null) {
+        Iterable it = json.decode(lastOEEData);
+        List<OEEdashModel> getoee =
+            it.map((e) => OEEdashModel.FromJSON(e)).toList();
+        return getoee;
+      } else {
+        throw Exception('No previous data available');
+      }
     }
   }
 }
@@ -96,7 +117,7 @@ class TrigOEE {
   static Future<TrigOEE> triggerOEE(int machine_id) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/trigOEE");
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/trigOEE");
     var response = await http.post(url,
         headers: {
           'Content-Type': 'application/json',
@@ -117,7 +138,7 @@ class ResetOEE {
   static Future<ResetOEE> resOEE(int machine_id) async {
     final SharedPreferences shared = await SharedPreferences.getInstance();
     var getToken = shared.getString("token");
-    Uri url = Uri.parse("https://tugasakhirmangjody.my.id/api/resetOEE");
+    Uri url = Uri.parse("https://semoga-lulus.vercel.app/api/resetOEE");
     var response = await http.put(url,
         headers: {
           'Content-Type': 'application/json',

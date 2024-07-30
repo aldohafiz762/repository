@@ -5,7 +5,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:project_tugas_akhir_copy/additional/report_pdf.dart';
 import 'package:project_tugas_akhir_copy/models/bigloss_model.dart';
+import 'package:project_tugas_akhir_copy/models/costprice_model.dart';
 import 'package:project_tugas_akhir_copy/services/bigloss_service.dart';
+import 'package:project_tugas_akhir_copy/services/costprice_service.dart';
 import 'package:project_tugas_akhir_copy/services/quality_service.dart';
 // import 'package:project_tugas_akhir_copy/services/costprice_service.dart';
 import 'package:project_tugas_akhir_copy/services/oee_service.dart';
@@ -670,6 +672,162 @@ class _TableBLState extends State<TableBL> {
                 )),
                 DataCell(Text(
                   "${(e.reject).toInt()} Unit ",
+                  style: TextStyle(fontSize: blockVertical * 2),
+                )),
+              ]);
+            }).toList(),
+          );
+        });
+  }
+}
+
+class TableCost extends StatefulWidget {
+  const TableCost({super.key});
+
+  @override
+  State<TableCost> createState() => _TableCostState();
+}
+
+class _TableCostState extends State<TableCost> {
+  //STREAM CONTROLLER COST
+  StreamController<List<GetCostHModel>> streamCost =
+      StreamController.broadcast();
+  List<GetCostHModel> costList = [];
+  ReportCost cost = ReportCost();
+  Future<void> costData() async {
+    costList = await ReportCost.reportCost();
+    streamCost.add(costList);
+  }
+
+  @override
+  void initState() {
+    costData();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final MediaQueryheight = MediaQuery.of(context).size.height;
+    double blockVertical = MediaQueryheight / 100;
+    return StreamBuilder(
+        stream: streamCost.stream,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: Shimmer.fromColors(
+                baseColor: Colors.white,
+                highlightColor: Colors.grey,
+                child: Text(
+                  'Loading',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: blockVertical * 5,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            );
+          }
+          return DataTable(
+            headingRowColor: MaterialStateProperty.resolveWith<Color?>(
+                (Set<MaterialState> state) {
+              return Theme.of(context).colorScheme.primary.withOpacity(0.5);
+            }),
+            border: TableBorder(
+              top: BorderSide(
+                  width: blockVertical * 0.2,
+                  color: Colors.black.withOpacity(0.3)),
+              left: BorderSide(
+                  width: blockVertical * 0.2,
+                  color: Colors.black.withOpacity(0.3)),
+              right: BorderSide(
+                  width: blockVertical * 0.2,
+                  color: Colors.black.withOpacity(0.3)),
+              bottom: BorderSide(
+                  width: blockVertical * 0.2,
+                  color: Colors.black.withOpacity(0.3)),
+              borderRadius: BorderRadius.circular(blockVertical * 2),
+              verticalInside: BorderSide(
+                width: blockVertical * 0.2,
+                color: Colors.black.withOpacity(0.3),
+              ),
+              horizontalInside: BorderSide(
+                width: 3,
+                color: Colors.black.withOpacity(0.1),
+              ),
+            ),
+            columns: [
+              DataColumn(
+                  label: Text(
+                "Initially Create",
+                style:
+                    TextStyle(color: Colors.black, fontSize: blockVertical * 2),
+              )),
+              DataColumn(
+                  label: Text(
+                "Latest Update",
+                style:
+                    TextStyle(color: Colors.black, fontSize: blockVertical * 2),
+              )),
+              DataColumn(
+                  label: Text(
+                "Biaya Material",
+                style:
+                    TextStyle(color: Colors.black, fontSize: blockVertical * 2),
+              )),
+              DataColumn(
+                  label: Text(
+                "Biaya Overhead",
+                style:
+                    TextStyle(color: Colors.black, fontSize: blockVertical * 2),
+              )),
+              DataColumn(
+                  label: Text(
+                "Biaya Manpower",
+                style:
+                    TextStyle(color: Colors.black, fontSize: blockVertical * 2),
+              )),
+              DataColumn(
+                  label: Text(
+                "HPP",
+                style:
+                    TextStyle(color: Colors.black, fontSize: blockVertical * 2),
+              )),
+            ],
+            rows: costList.map((e) {
+              // int index = blList.indexOf(e);
+              // String Number = (index + 1)
+              //     .toString()
+              //     .padLeft(stockProcessed.length.toString().length);
+              dynamic tarif_listrik = e.daya * e.tarif_kwh * (e.waktu / 3600);
+              dynamic upah = e.manpower! * (e.waktu / 3600);
+              int harga_total = e.good! * e.harga_unit!;
+              dynamic harga_produksi = tarif_listrik + upah + harga_total;
+              return DataRow(cells: [
+                DataCell(Text(
+                  DateFormat('yyyy-MM-dd HH:mm:ss')
+                      .format(DateTime.parse(e.createdAt.toString()).toLocal()),
+                  style: TextStyle(fontSize: blockVertical * 2),
+                )),
+                DataCell(Text(
+                  DateFormat('yyyy-MM-dd HH:mm:ss')
+                      .format(DateTime.parse(e.updatedAt.toString()).toLocal()),
+                  style: TextStyle(fontSize: blockVertical * 2),
+                )),
+                DataCell(Text(
+                  "Rp.${(harga_total).toStringAsFixed(2)},-",
+                  style: TextStyle(fontSize: blockVertical * 2),
+                )),
+                DataCell(Text(
+                  "Rp.${(tarif_listrik).toStringAsFixed(2)},-",
+                  style: TextStyle(fontSize: blockVertical * 2),
+                )),
+                DataCell(Text(
+                  "Rp.${(upah).toStringAsFixed(2)},-",
+                  style: TextStyle(fontSize: blockVertical * 2),
+                )),
+                DataCell(Text(
+                  "Rp.${(harga_produksi).toStringAsFixed(2)},-",
                   style: TextStyle(fontSize: blockVertical * 2),
                 )),
               ]);

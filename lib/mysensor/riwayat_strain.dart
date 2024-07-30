@@ -37,7 +37,8 @@ class _RiwayatStrainState extends State<RiwayatStrain> {
 
   Future<void> lateststrain() async {
     try {
-      List<StrainModel> strainList = await getLateststrain.getStrain();
+      List<StrainModel> strainList =
+          (await getLateststrain.getStrain()) as List<StrainModel>;
       if (!streamStrain.isClosed) {
         streamStrain.add(strainList);
       }
